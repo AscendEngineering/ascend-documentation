@@ -87,8 +87,8 @@ ascend-8tof ──UART──►  voxl-ascend-8tof ──┤ one packet per chann
                         /run/mpa/tof8_ch7 ┘
 ```
 
-- **Source:** `voxl-ascend-8tof/` (VOXL-SDK C service, systemd unit).
-- **Target host:** VOXL2 / QRB5165 (also builds for qcs6490 / qrb5165-2 / native).
+- **Software:** `voxl-ascend-8tof`, an Ascend-provided VOXL-SDK service (systemd).
+- **Target host:** VOXL2 / QRB5165.
 
 ### Why one pipe per channel (v0.1.0)
 
@@ -123,22 +123,17 @@ selects which one a channel publishes:
 > `invalid metadata, magic number=…`. voxl-mapper has exactly **4 tof + 4 depth
 > slots = 8**, so all 8 sensors fit if you split them 4/4 (this is the default).
 
-### Building & packaging
+### Install
 
-Built inside the `voxl-cross` docker, like every VOXL-SDK project:
-
-```bash
-./install_build_deps.sh qrb5165 dev   # once, inside voxl-cross
-./build.sh qrb5165                     # or qrb5165-2 / qcs6490 / native
-./make_package.sh                      # -> voxl-ascend-8tof_<ver>_arm64.deb
-```
-
-Install the `.deb` on the VOXL2, then:
+Ascend provides the `voxl-ascend-8tof` service as a prebuilt package. Install it
+on the VOXL2 and enable it:
 
 ```bash
-systemctl enable voxl-ascend-8tof
-systemctl start  voxl-ascend-8tof
+dpkg -i voxl-ascend-8tof_<ver>_arm64.deb
+systemctl enable --now voxl-ascend-8tof
 ```
+
+Contact Ascend for the latest package build.
 
 ### Configuration — `/etc/modalai/voxl-ascend-8tof.conf`
 

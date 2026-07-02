@@ -31,6 +31,6 @@ UAV companion computers, sensor systems, firmware, and integration guides.
 
 - Every product has its own section in the sidebar (and top tabs); pick a
   product above or from the navigation to dive in.
-- Docs are built from source (KiCad schematics, firmware, service code) and
-  kept in the [`ascend-documentation`](https://github.com/AscendEngineering/ascend-documentation)
-  repository. Pushes to `main` auto-deploy to this site.
+- Documentation is maintained in the
+  [`ascend-documentation`](https://github.com/AscendEngineering/ascend-documentation)
+  repository; pushes to `main` auto-deploy to this site.

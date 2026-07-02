@@ -1,7 +1,0 @@
-"Reference","Qty","Value","DNP","Exclude from BOM","Exclude from Board","Footprint","Datasheet"
-"C17","1","4.7µF","","","","Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder","~"
-"C30,C49","2","100 nF","","","","Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder","~"
-"J2","1","Conn_01x05_Pin","","","","Connector_PinHeader_1.00mm:PinHeader_1x05_P1.00mm_Vertical","~"
-"R1,R2","2","2.2kΩ","","","","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","~"
-"R24,R25,R37,R38","4","47kΩ","","","","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","~"
-"U5","1","VL53L8CXV0GC/1","","","","VL53L8CXV0GC/1:IC17_LGA16_STM","https://www.st.com/resource/en/datasheet/vl53l8cx.pdf"
