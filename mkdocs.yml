@@ -49,7 +49,7 @@ nav:
     - Power & Voltage Ranges: ascend-8tof/02-power.md
     - Communications & Protocols: ascend-8tof/03-comms-protocol.md
     - STM32 Firmware: ascend-8tof/04-firmware.md
-    - VOXL Integration: ascend-8tof/05-voxl-integration.md
+    - Integration (any host): ascend-8tof/05-integration.md
     - Bring-up & Setup: ascend-8tof/06-bringup-setup.md
 
 markdown_extensions:

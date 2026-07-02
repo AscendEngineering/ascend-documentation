@@ -1,6 +1,8 @@
 # Bring-up & Setup Guide
 
-End-to-end procedure to go from bare boards to obstacles appearing in voxl-mapper.
+End-to-end procedure to go from bare boards to a working obstacle sensor on your
+host. The bench steps are universal; the final integration uses a VOXL2 +
+voxl-mapper as the worked example.
 
 ## 0. What you need
 
@@ -10,7 +12,10 @@ End-to-end procedure to go from bare boards to obstacles appearing in voxl-mappe
 - USB-C cable **or** a regulated supply on the `J1` power input
   (see [Power](02-power.md) for the allowed input range).
 - USB-UART adapter (921 600-capable, e.g. FTDI) for bench test, wired to `J7`.
-- For flight integration: a VOXL2 with VOXL-SDK.
+- For flight integration: **any host with a UART** (flight controller or onboard
+  computer). Steps 1–3 below are universal; step 4 uses a **VOXL2 with VOXL-SDK**
+  as the worked example — see [Integration (any host)](05-integration.md) for
+  other platforms.
 
 ## 1. Assemble & connect
 
@@ -64,7 +69,12 @@ Optional live debug over ST-Link semihosting: `make run` (Ctrl-C to stop).
 - Missing a channel in the scan → check that sensor's cable/connector and that its
   NCS pulldown selects I²C mode.
 
-## 4. Integrate with VOXL2
+## 4. Integrate with your host
+
+Any host that can read a UART works — the board just streams ASCII. For a generic
+recipe (ArduPilot/PX4, ROS, bare MCU, …) see
+[Integration (any host)](05-integration.md). The steps below are the **VOXL2
+worked example**.
 
 1. **Wire** the board's `J7` UART to a VOXL2 high-speed UART (e.g. `/dev/ttyHS1`)
    and power the board.
@@ -76,7 +86,7 @@ Optional live debug over ST-Link semihosting: `make run` (Ctrl-C to stop).
    ```
 3. **Configure** `/etc/modalai/voxl-ascend-8tof.conf` — confirm `uart_path`
    matches the port you wired and `uart_baud = 921600`. (Defaults are otherwise
-   good; see [VOXL integration → Configuration](05-voxl-integration.md#configuration-etcmodalaivoxl-ascend-8tofconf).)
+   good; see [Integration → Configuration](05-integration.md#configuration-etcmodalaivoxl-ascend-8tofconf).)
 4. **Verify pipes**:
    ```bash
    systemctl stop voxl-ascend-8tof
@@ -85,7 +95,7 @@ Optional live debug over ST-Link semihosting: `make run` (Ctrl-C to stop).
    ```
 5. **Wire into voxl-mapper** — add the `tof_pipe_*` / `depth_pipe_*` slots and
    matching `extrinsics.conf` entries from
-   [VOXL integration](05-voxl-integration.md#voxl-mapper-wiring). Mount the board
+   [Integration](05-integration.md#voxl-mapper-wiring). Mount the board
    with **CH3 facing the nose** to match the provided extrinsics table.
 6. **Validate placement** — with voxl-mapper running, block one sensor at a time
    and confirm the obstacle shows up in the expected body direction in

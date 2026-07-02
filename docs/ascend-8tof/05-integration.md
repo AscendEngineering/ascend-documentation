@@ -1,10 +1,82 @@
-# VOXL Integration (`voxl-ascend-8tof`)
+# Integration
 
-A VOXL-SDK service that bridges the Ascend-8tof board into **voxl-mapper**. It
-reads the board's UART ASCII stream, converts every zone into a 3-D point using
-the sensor field-of-view model, and publishes **one MPA pipe per channel**.
-voxl-mapper consumes each pipe as an independent ToF camera and applies each
-sensor's mounting transform from `extrinsics.conf`.
+The Ascend-8tof board's **entire interface to the outside world is a plain ASCII
+distance stream over UART** (921600-8N1). It is **not tied to any specific
+autopilot or onboard computer** — anything with a serial port can read it: a
+flight controller (ArduPilot / PX4), a companion computer (Raspberry Pi, NVIDIA
+Jetson, ModalAI VOXL2, …), or even a bare microcontroller.
+
+This page covers the **host-agnostic integration first**, then documents the
+**VOXL2 + voxl-mapper** path in detail as a *worked example* — that's simply the
+platform we know best and ship a ready-made plugin (`voxl-ascend-8tof`) for. None
+of the board or firmware is VOXL-specific.
+
+> Whatever you build — obstacle avoidance, SLAM/mapping, logging, a proximity
+> alarm — you consume the same stream documented in
+> [Communications & Protocols](03-comms-protocol.md).
+
+## The stream, in one paragraph
+
+For each sensor with fresh data the firmware prints a header line `--- CH<n> ---`
+then 8 rows of 8 integers — an 8×8 grid of distances in millimetres, with `0`
+meaning no return / invalid. Each sensor updates at 15 Hz; channels are
+interleaved as data becomes ready. See
+[the exact wire format](03-comms-protocol.md#wire-format-ascii) for the bytes.
+
+## Generic integration recipe (any host)
+
+1. **Wire it up.** Board `J7` UART: TX (pin 3) → host RX, GND (pin 4) → host GND
+   (host TX → board RX is optional; the protocol is one-way). Power the board from
+   5 V — see [Power](02-power.md).
+2. **Open the port** at **921600-8N1**, no flow control.
+3. **Parse** line-by-line: on `--- CH<n> ---` begin a new grid for channel *n*;
+   the next 8 lines each carry 8 integers → fill the 8×8 grid; treat `0` as
+   "no return".
+4. **Interpret geometry (optional).** If you need 3-D points rather than raw
+   per-zone ranges, convert each zone to a direction with the field-of-view model
+   below, then scale by the measured range. Which physical direction each channel
+   faces is entirely your mounting choice (the VOXL2 example below shows the 8-way
+   360° layout we use).
+5. **Use it.** Feed the ranges/points into your obstacle-avoidance, mapping, or
+   logging logic.
+
+### Field-of-view model (per zone)
+
+For an 8×8 grid with total per-axis FoV `fov_deg` (default 45°), in the sensor's
+own optical frame (x-right, y-down, z-forward):
+
+```
+step   = (fov_deg / 8) * π/180                     # angular pitch between zones
+ax     = (col - 3.5) * step                        # azimuth off optical axis
+ay     = (row - 3.5) * step                        # elevation off optical axis
+dir    = normalize( tan(ax), tan(ay), 1 )          # unit ray
+point  = (distance_mm / 1000) * dir                # metres, sensor optical frame
+```
+
+Then apply your sensor→body mounting rotation to place each point in the vehicle
+frame. (The VOXL2 example offloads this last step to voxl-mapper via
+`extrinsics.conf`.)
+
+### Notes for other hosts
+
+- **ArduPilot / PX4:** the simplest path is a small companion-computer script that
+  reads the UART and republishes distances over MAVLink (`OBSTACLE_DISTANCE` /
+  `DISTANCE_SENSOR`) or DDS/uORB; the autopilot's built-in obstacle avoidance then
+  consumes them. The 8 channels map naturally onto `OBSTACLE_DISTANCE` sectors.
+- **ROS / ROS 2:** parse the stream in a node and publish `LaserScan`,
+  `PointCloud2`, or per-sensor `Range` messages.
+- **Bare MCU:** read ranges directly for a reactive proximity/braking behavior —
+  no point cloud required.
+
+---
+
+## Example: VOXL2 + voxl-mapper (`voxl-ascend-8tof`)
+
+The rest of this page is the **worked example** for a ModalAI VOXL2, using our
+`voxl-ascend-8tof` VOXL-SDK service. It reads the UART stream above, projects each
+grid into 3-D points with the FoV model, and publishes **one MPA pipe per
+channel** for **voxl-mapper** to consume as independent ToF cameras, each placed
+by its mounting transform in `extrinsics.conf`.
 
 ```
                         /run/mpa/tof8_ch0 ┐
@@ -15,7 +87,7 @@ ascend-8tof ──UART──►  voxl-ascend-8tof ──┤ one packet per chann
 - **Source:** `voxl-ascend-8tof/` (VOXL-SDK C service, systemd unit).
 - **Target host:** VOXL2 / QRB5165 (also builds for qcs6490 / qrb5165-2 / native).
 
-## Why one pipe per channel (v0.1.0)
+### Why one pipe per channel (v0.1.0)
 
 voxl-mapper's ToF ingestion **discards any point with z ≤ 0 before applying the
 per-pipe extrinsic**. The old v0.0.x design merged all 8 sensors into one forward
@@ -24,29 +96,17 @@ was impossible. Publishing each channel on its own pipe, in its own +z-forward
 optical frame, keeps every point valid and lets voxl-mapper do per-sensor
 ray-casting for proper free-space carving.
 
-## Data path
+### Data path
 
 | Stage | Detail |
 |-------|--------|
 | **Input** | UART (default `/dev/ttyHS1`, **921600-8N1**). Board prints `--- CH<n> ---` then 8 rows of 8 mm distances (0 = invalid). |
 | **Parse** | Header `--- CH<n>` sets the current channel; each subsequent row of 8 ints fills the 8×8 grid; grid timestamped on completion. |
-| **Project** | Each zone → a ray from the FoV model at the measured range, in the sensor's own optical frame (**x-right, y-down, z-forward**). Invalid (0 mm) and out-of-range (> `max_range_m`) zones dropped. |
+| **Project** | Each zone → a ray from the [FoV model](#field-of-view-model-per-zone) at the measured range, in the sensor's own optical frame. Invalid (0 mm) and out-of-range (> `max_range_m`) zones dropped. |
 | **Publish** | One packet per channel on `chN_pipe`, `confidences = 255`, rate-limited per channel to `output_rate_hz`. |
 | **Place** | voxl-mapper looks up each pipe's extrinsic by name in `/etc/modalai/extrinsics.conf` and transforms the cloud into body frame. |
 
-### Projection math (per zone)
-
-For an 8×8 grid with total per-axis FoV `fov_deg` (default 45°):
-
-```
-step   = (fov_deg / 8) * π/180                     # angular pitch between zones
-ax     = (col - 3.5) * step                        # azimuth off optical axis
-ay     = (row - 3.5) * step                        # elevation off optical axis
-dir    = normalize( tan(ax), tan(ay), 1 )          # unit ray, x-right y-down z-forward
-point  = (distance_mm / 1000) * dir                # metres, sensor optical frame
-```
-
-## Packet formats
+### Packet formats
 
 voxl-mapper has two ingestion paths with different packet types; `chN_format`
 selects which one a channel publishes:
@@ -60,7 +120,7 @@ selects which one a channel publishes:
 > `invalid metadata, magic number=…`. voxl-mapper has exactly **4 tof + 4 depth
 > slots = 8**, so all 8 sensors fit if you split them 4/4 (this is the default).
 
-## Building & packaging
+### Building & packaging
 
 Built inside the `voxl-cross` docker, like every VOXL-SDK project:
 
@@ -77,7 +137,7 @@ systemctl enable voxl-ascend-8tof
 systemctl start  voxl-ascend-8tof
 ```
 
-## Configuration — `/etc/modalai/voxl-ascend-8tof.conf`
+### Configuration — `/etc/modalai/voxl-ascend-8tof.conf`
 
 Created with defaults on first run.
 
@@ -98,7 +158,7 @@ Created with defaults on first run.
 > `extrinsics.conf`. Delete them from any pre-existing config (the service
 > rewrites defaults on first run).
 
-## voxl-mapper wiring
+### voxl-mapper wiring
 
 Wire each `chN_pipe` into a `tof_pipe_N` / `depth_pipe_N` slot in
 `/etc/modalai/voxl-mapper.conf`, each with its own extrinsic name.
@@ -117,11 +177,12 @@ depth):
 "depth_pipe_3": "/run/mpa/tof8_ch0", "depth_pipe_3_enable": true, "depth3_rate": 15, "extrinsics3_name": "tof8_ch0",  // W
 ```
 
-## Extrinsics — `/etc/modalai/extrinsics.conf`
+### Extrinsics — `/etc/modalai/extrinsics.conf`
 
 For a board mounted flat on top of the FCU with **CH3 facing the drone's nose**,
 body frame FRD (X forward, Y right, Z down). Each sensor needs a `body`→`tof8_chN`
-entry.
+entry. **This bearing table is also the reference layout for the 8-way 360° ring
+on any host** — the RPYs are just how we express it for voxl-mapper.
 
 **Convention:** ModalAI's `RPY_parent_to_child` produces a matrix labeled
 `R_child_to_parent` — column 2 is the sensor's optical Z (forward) expressed in
@@ -143,7 +204,7 @@ center — negligible at meter scale). **Verify each channel empirically:** with
 voxl-mapper running, block one sensor at a time and confirm the obstacle appears
 in the expected body direction in voxl-portal.
 
-## Debugging
+### Debugging
 
 ```bash
 systemctl stop voxl-ascend-8tof
@@ -155,7 +216,7 @@ voxl-inspect-points tof8_ch0                # point_cloud channels (CH0/1/5/6)
 voxl-inspect-extrinsics -p body -c tof8_ch3 # verify resolved R_child_to_parent
 ```
 
-## Version history
+### Version history (`voxl-ascend-8tof`)
 
 - **v0.1.0** — one MPA pipe per channel (breaking); `chN_format` selectable
   (tof2/point_cloud); mounting transform moved to `extrinsics.conf`; all 8

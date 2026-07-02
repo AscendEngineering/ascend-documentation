@@ -127,6 +127,6 @@ One VL53L8CX (`U5`, LGA-16) per board, plus decoupling, I²C pull-ups and mode s
 - Board is mounted flat on top of the flight-control unit (FCU) with **CH3 (J3)
   facing the drone nose**; the 8 sensors then look outward in ~45° increments to
   form a 360° ring. See the bearing/extrinsics table in
-  [VOXL integration](05-voxl-integration.md#extrinsics-etcmodalaiextrinsicsconf).
+  [Integration](05-integration.md#extrinsics-etcmodalaiextrinsicsconf).
 - Sensors sit ~3 cm from the FCU center — negligible translation at meter-scale
   mapping, so extrinsic translations default to zero.

@@ -3,16 +3,22 @@
 The Ascend-8tof system has three communication layers. This page documents each
 one exactly as implemented.
 
+The **host link (layer 2) is the board's only external interface** — a plain ASCII
+UART stream that *any* flight controller or onboard computer can read. Layer 3
+(MPA pipes) is **not part of the board**; it's how our VOXL2 example software
+republishes the stream, shown here only for completeness.
+
 ```
- VL53L8CX x8 ──I2C(1MHz)──► TCA9548A mux ──I2C──► STM32H563 ──UART(921600)──► VOXL2 ──MPA pipes──► voxl-mapper
-   (sensor)                   (0x70)              (firmware)                  (companion)
+ VL53L8CX x8 ──I2C(1MHz)──► TCA9548A mux ──I2C──► STM32H563 ──UART(921600, ASCII)──► any host
+   (sensor)                   (0x70)              (firmware)                          (FC / onboard computer)
+                                                                                      └─ VOXL2 example ──MPA pipes──► voxl-mapper
 ```
 
 | Link | Physical | Protocol | Speed | Endpoints |
 |------|----------|----------|-------|-----------|
 | Sensor bus | I²C1 (PB6/PB7) | I²C Fast-mode Plus | **1 MHz** | STM32 ↔ TCA9548A ↔ 8× VL53L8CX |
-| Host link | USART2 (PA2 TX) | UART 8N1, ASCII | **≈921 600 baud** | STM32 → VOXL2 |
-| Map link | Unix domain sockets | ModalAI MPA (libmodal_pipe) | — | companion → voxl-mapper |
+| **Host link** | USART2 (PA2 TX) | UART 8N1, ASCII | **≈921 600 baud** | STM32 → **any host** (the universal interface) |
+| Map link *(VOXL2 example only)* | Unix domain sockets | ModalAI MPA (libmodal_pipe) | — | companion → voxl-mapper |
 
 ---
 
@@ -134,12 +140,16 @@ screen /dev/tty.usbserial-XXXX 921600
 
 ---
 
-## 3. MPA map link (companion → voxl-mapper)
+## 3. MPA map link *(VOXL2 example only — not part of the board)*
+
+> This layer exists **only in the example VOXL2 software**, not on the board. On a
+> different host you'd replace it with whatever your platform uses (MAVLink,
+> ROS topics, a custom parser). The board itself stops at the UART stream above.
 
 The `voxl-ascend-8tof` companion parses the UART stream, projects each 8×8 grid
 into 3-D points, and publishes **one MPA pipe per channel**. See
-[VOXL integration](05-voxl-integration.md) for the full data path, packet
-formats, extrinsics and voxl-mapper wiring.
+[Integration](05-integration.md) for the host-agnostic recipe plus the full VOXL2
+data path, packet formats, extrinsics and voxl-mapper wiring.
 
 Summary of the on-pipe contract:
 
