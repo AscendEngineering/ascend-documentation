@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://docs.ascendengineer.com/</loc>
+         <lastmod>2026-07-02</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.ascendengineer.com/ascend-8tof/</loc>
+         <lastmod>2026-07-02</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.ascendengineer.com/ascend-8tof/01-hardware/</loc>
+         <lastmod>2026-07-02</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.ascendengineer.com/ascend-8tof/02-power/</loc>
+         <lastmod>2026-07-02</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.ascendengineer.com/ascend-8tof/03-comms-protocol/</loc>
+         <lastmod>2026-07-02</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.ascendengineer.com/ascend-8tof/04-firmware/</loc>
+         <lastmod>2026-07-02</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.ascendengineer.com/ascend-8tof/05-integration/</loc>
+         <lastmod>2026-07-02</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.ascendengineer.com/ascend-8tof/06-bringup-setup/</loc>
+         <lastmod>2026-07-02</lastmod>
+    </url>
+</urlset>
