@@ -1,6 +1,9 @@
-# GitHub Pages deploy for Material for MkDocs.
-# In the repo: Settings → Pages → Source = "GitHub Actions".
-# Publishes on every push to the default branch.
+# Deploys the docs by building the site and pushing it to the `gh-pages` branch
+# via `mkdocs gh-deploy`. GitHub Pages must be set to:
+#   Settings -> Pages -> Source = "Deploy from a branch" -> branch: gh-pages, /(root)
+#
+# This avoids the actions/deploy-pages deployment-queue jams entirely — it just
+# builds and pushes a branch, and GitHub serves it statically (.nojekyll).
 name: Deploy docs
 
 on:
@@ -8,34 +11,22 @@ on:
     branches: [main, master]
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write        # needed to push the built site to gh-pages
 
 concurrency:
-  group: pages
+  group: gh-pages-deploy
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # gh-deploy needs history for the gh-pages branch
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
-      - run: mkdocs build --strict --site-dir site
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - run: mkdocs build --strict --site-dir /tmp/site-check   # fail fast on broken links
+      - run: mkdocs gh-deploy --force
