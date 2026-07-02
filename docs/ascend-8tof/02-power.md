@@ -1,40 +1,41 @@
 # Power
 
-The board regulates everything the sensors need internally — you only supply a
-single DC input.
+The board takes a **single DC input over a wide range** and regulates everything
+the sensors need on-board — you don't supply any sensor voltages yourself.
 
 ## Input
 
-Power the board from **either** input (they're interchangeable):
+Power the board from **either** input:
 
-| Input | Connector | Use |
-|-------|-----------|-----|
-| External DC | `J1` (2-pin) | Flight / integration — feed from your vehicle's regulated 5 V |
-| USB-C | `J2` | Bench / desktop |
+| Input | Connector | Range | Use |
+|-------|-----------|-------|-----|
+| **External DC** | `J1` (2-pin) | **5 V – 6S LiPo (~25 V)** | Flight / integration — feed from a 5 V rail *or* directly from the vehicle battery (2S–6S) |
+| **USB-C** | `J2` | 5 V | Bench / desktop |
 
 | Parameter | Value |
 |-----------|-------|
-| **Input voltage** | **5 V nominal** (recommended operating range **5.0–5.5 V**) |
+| **Input voltage** | **5 V to ~25.2 V** (up to a **6S LiPo**), via `J1` |
 | **Typical current** | well under **500 mA** in steady ranging |
-| **Peak current** | brief inrush at power-on (all sensors initializing) — size the supply for ≥ 500 mA |
-| Protection | reverse-polarity and over-current protected |
+| **Peak current** | brief inrush at power-on (all sensors initializing) |
+| Protection | reverse-polarity protected; USB path is fused + diode-isolated from the DC input |
 
-!!! warning "Use a 5 V supply"
-    Feed `J1` with a regulated **5 V** rail. Do not exceed the recommended range —
-    the board is designed around a 5 V input, and higher voltages are not
-    supported on the input net.
+!!! note "Wide input"
+    `J1` accepts anything from **5 V up to a 6S LiPo** — an on-board wide-input
+    regulator converts it down to the rails the sensors run on. You can feed it a
+    regulated 5 V or wire it straight to the flight battery. USB-C (`J2`) is a 5 V
+    bench alternative; you don't need both.
 
 ## What the board provides
 
-- All sensor supplies are generated on-board from the 5 V input — you do **not**
-  provide anything to the sensors directly; they're powered through the 8 sensor
-  connectors.
+- All sensor supplies are generated **on-board** from the DC input — you do
+  **not** provide anything to the sensors directly; they're powered through the 8
+  sensor connectors.
 - The host UART connector (`J7`) also exposes a protected **+5 V** pin for
   conveniently powering a small USB-UART adapter. Treat it as an output only —
   do not back-feed power into it.
 
 ## Powering for flight
 
-Take a regulated **5 V** feed from the flight-control unit / power module to `J1`,
-and take the data connection off the host UART (`J7`). See
-[Bring-up & Setup](06-bringup-setup.md).
+Feed `J1` from your flight-control unit / power module — either a regulated 5 V
+rail or the vehicle battery directly (up to **6S**) — and take the data connection
+off the host UART (`J7`). See [Bring-up & Setup](06-bringup-setup.md).

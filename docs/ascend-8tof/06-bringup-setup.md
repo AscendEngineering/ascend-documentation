@@ -8,8 +8,8 @@ your host. The board ships **pre-flashed by Ascend** with your chosen
 
 - Ascend main board + up to 8 TOF sub-boards.
 - 8× 5-pin sensor cables (main-board sensor ports → TOF sub-boards).
-- A **regulated 5 V supply** on `J1`, **or** a USB-C cable
-  (see [Power](02-power.md)).
+- A DC supply on `J1` — **5 V up to a 6S LiPo** (a regulated 5 V rail or the
+  vehicle battery) — **or** a USB-C cable (see [Power](02-power.md)).
 - A USB-UART adapter (921 600-capable) for the bench check, wired to `J7`
   — *default (sensor-stream) firmware only*.
 - For flight integration: **any host with a UART** (flight controller or onboard
@@ -38,7 +38,7 @@ firmware, which talks to a flight controller rather than a terminal.)*
 
 1. Connect the USB-UART adapter to `J7` (board **TX → adapter RX**, GND↔GND), host
    set to **921 600-8N1**.
-2. Power the board (5 V on `J1`, or USB-C).
+2. Power the board (`J1` — 5 V to 6S — or USB-C).
 3. Open the port in any serial terminal:
    ```bash
    screen /dev/tty.usbserial-XXXX 921600     # or minicom -D /dev/ttyUSB0 -b 921600

@@ -25,8 +25,8 @@ interleaved as data becomes ready. See
 ## Generic integration recipe (any host)
 
 1. **Wire it up.** Board `J7` UART: TX (pin 3) → host RX, GND (pin 4) → host GND
-   (host TX → board RX is optional; the protocol is one-way). Power the board from
-   5 V — see [Power](02-power.md).
+   (host TX → board RX is optional; the protocol is one-way). Power the board via
+   `J1` (5 V up to 6S) or USB-C — see [Power](02-power.md).
 2. **Open the port** at **921600-8N1**, no flow control.
 3. **Parse** line-by-line: on `--- CH<n> ---` begin a new grid for channel *n*;
    the next 8 lines each carry 8 integers → fill the 8×8 grid; treat `0` as

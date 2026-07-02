@@ -28,8 +28,8 @@ this documentation uses a **ModalAI VOXL2** as the worked example integration.
 - **Sensors:** up to 8× VL53L8CX, each an **8×8 zone grid at 15 Hz**, forming a
   360° ring.
 - **Reliable range:** ~4 m (8×8 mode); ~45° field of view per axis.
-- **Power:** single **5 V** input (`J1` or USB-C); < 500 mA typical — see
-  [Power](02-power.md).
+- **Power:** single DC input — **5 V up to a 6S LiPo** on `J1` (or 5 V USB-C);
+  < 500 mA typical — see [Power](02-power.md).
 - **Output:** plain ASCII per-channel **8×8 distance matrices** over UART at
   **≈921 600 baud 8N1** — consumable by any host (see
   [Communications](03-comms-protocol.md#baud-rate-important)).
