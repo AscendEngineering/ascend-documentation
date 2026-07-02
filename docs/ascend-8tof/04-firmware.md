@@ -68,16 +68,6 @@ avoidance co-processor.
   ArduPilot `AVOID_*` / `PRX` parameters) so it consumes the `OBSTACLE_DISTANCE`
   data. No companion computer, no ASCII parsing.
 
-### Status-LED indication
-
-The onboard status LED shows state at a glance:
-
-| Pattern | Meaning |
-|---------|---------|
-| Fast blink (~100 ms) | collision detected |
-| Normal blink (~500 ms) | running, sensors OK |
-| Slow blink (~2 s) | no sensors online |
-
 ### Beta status
 
 This firmware is still being finalized (mounting-angle calibration, performance

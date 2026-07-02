@@ -47,6 +47,9 @@ firmware, which talks to a flight controller rather than a terminal.)*
    of millimetre distances — one per connected sensor, updating continuously.
 
 **Sanity checks**
+- The onboard LED is a **power-good indicator** — it lights when the board is
+  powered and its rails are up. It does **not** indicate data/sensor/collision
+  status (there's no firmware-driven status LED).
 - Wave your hand ~30 cm in front of one sensor → that channel's grid should drop
   to ~300 mm values. `0` = no return / invalid, **not** "obstacle at 0".
 - A missing channel → check that sensor's cable and connector seating.
