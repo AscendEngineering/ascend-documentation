@@ -1,5 +1,10 @@
 # Hardware Overview
 
+<figure markdown="span">
+  ![Assembled Ascend-8tof board with the 8 vertical TOF sub-boards around the perimeter](assets/board.png){ width="340" }
+  <figcaption>Assembled Ascend-8tof — main board with the 8 vertical TOF sub-boards forming the 360° ring</figcaption>
+</figure>
+
 The Ascend-8tof is a **360° time-of-flight obstacle-sensing system** made of two
 board types:
 
@@ -71,6 +76,16 @@ bearing in software:
 | **J5** | CH1 | **J13** | CH5 |
 | **J4** | CH2 | **J10** | CH6 |
 | **J3** | CH3 | **J11** | CH7 |
+
+## Dimensions & weight
+
+| Item | Size |
+|------|------|
+| **Main / carrier board** | **40 × 40 mm** |
+| **TOF sub-board** (each) | **11.4 × 8.8 mm** |
+| **Assembled footprint** | 40 × 40 mm |
+| **Assembled height** | **~10 mm** (the sub-boards stand vertically around the perimeter) |
+| Weight | *to be confirmed* |
 
 ## Mechanical / mounting
 
