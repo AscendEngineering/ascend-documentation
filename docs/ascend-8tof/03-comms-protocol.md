@@ -48,6 +48,41 @@ return** (see [Measurement validity](#measurement-validity)).
 So the full stream is, per channel, an **8×8 matrix of millimetre distances** —
 one matrix per sensor, updating at 15 Hz.
 
+### Example output
+
+A live capture looks like this — each channel's 8×8 grid arrives in turn and the
+sequence repeats at 15 Hz. Here CH3 sees an object ~0.4 m dead center against a
+wall ~2 m out; CH5 sees mostly open space (`0` = no return):
+
+```text
+--- CH3 ---
+  2015  2011  1998  1205  1199  1990  2005  2018
+  2012  2004  1210   812   809  1201  1995  2010
+  2008  1998   815   498   495   810  1988  2003
+  1995  1201   495   402   399   492  1199  1996
+  1990  1198   493   401   398   490  1197  1991
+  2006  2000   818   500   497   812  1990  2004
+  2013  2007  1215   820   817  1208  1998  2011
+  2019  2014  2003  1220  1214  1996  2009  2021
+--- CH4 ---
+  3050  3044  3061  3072  3038  3040  3055  3066
+  3041  3033  3052  3060  3029  3035  3049  3058
+   ...   (8 rows total)
+--- CH5 ---
+     0     0     0     0     0     0     0     0
+     0     0  3810  3805     0     0     0     0
+     0     0  3798  3792     0     0     0     0
+     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0
+```
+
+Each value is a right-aligned integer (millimetres) in a fixed-width column, so
+columns line up and are whitespace-separated. Only channels with a connected,
+ranging sensor appear.
+
 ### Reading it directly
 
 Any serial terminal or a few lines of code will do — no special tooling:
