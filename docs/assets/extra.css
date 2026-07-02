@@ -1,0 +1,120 @@
+/* ============================================================
+   Ascend Engineering brand theme for Material for MkDocs
+   Palette + type pulled from ascendengineer.com:
+     gold  #FBAF3A   near-black #111 / #000   body Inter / headings Barlow
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --ascend-gold:      #FBAF3A;
+  --ascend-gold-dark: #C8860F;   /* darker gold for link text on white (contrast) */
+  --ascend-black:     #111111;
+  --ascend-ink:       #0b0b0b;
+
+  /* Material theme variables */
+  --md-primary-fg-color:        var(--ascend-black);
+  --md-primary-fg-color--light: #2a2a2a;
+  --md-primary-fg-color--dark:  #000000;
+  --md-primary-bg-color:        #ffffff;
+  --md-accent-fg-color:         var(--ascend-gold);
+
+  --md-text-font: "Inter";
+  --md-code-font: "JetBrains Mono", "Roboto Mono", monospace;
+}
+
+/* Links in gold (darker shade for readable contrast on white) */
+[data-md-color-scheme="default"] {
+  --md-typeset-a-color: var(--ascend-gold-dark);
+}
+
+/* ---- Header: near-black with a gold top stripe (mirrors the site) ---- */
+.md-header {
+  background-color: var(--ascend-ink);
+  border-top: 3px solid var(--ascend-gold);
+}
+.md-tabs {
+  background-color: var(--ascend-ink);
+}
+
+/* Logo mark sizing in the header */
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  height: 2.1rem;
+  width: auto;
+}
+
+/* ---- Typography: Barlow headings, brand feel ---- */
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4,
+.md-typeset h5 {
+  font-family: "Barlow", var(--md-text-font), sans-serif;
+  font-weight: 700;
+  color: var(--ascend-black);
+}
+
+/* Page title + section headers echo the site's uppercase, wide-tracked look */
+.md-typeset h1 {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+  border-bottom: 2px solid var(--ascend-gold);
+  padding-bottom: .3rem;
+}
+.md-typeset h2 {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+[data-md-color-scheme="slate"] .md-typeset h1,
+[data-md-color-scheme="slate"] .md-typeset h2,
+[data-md-color-scheme="slate"] .md-typeset h3,
+[data-md-color-scheme="slate"] .md-typeset h4,
+[data-md-color-scheme="slate"] .md-typeset h5 {
+  color: #f2f2f2;
+}
+
+/* ---- Accents: nav, buttons, focus, search ---- */
+.md-nav__link--active,
+.md-nav__link:hover,
+.md-nav__item .md-nav__link--active {
+  color: var(--ascend-gold-dark) !important;
+}
+.md-typeset .md-button--primary {
+  background-color: var(--ascend-gold);
+  border-color: var(--ascend-gold);
+  color: #111;
+}
+.md-typeset .md-button--primary:hover {
+  background-color: #ffbf55;
+  border-color: #ffbf55;
+}
+
+/* Inline code + admonition titles a touch of brand */
+.md-typeset code {
+  border-radius: 3px;
+}
+.md-typeset .admonition.note,
+.md-typeset .admonition.warning {
+  border-left-color: var(--ascend-gold);
+}
+
+/* Tables: subtle header shade */
+.md-typeset table:not([class]) th {
+  background-color: rgba(17,17,17,0.04);
+  font-family: "Barlow", sans-serif;
+  letter-spacing: 0.02em;
+}
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background-color: rgba(255,255,255,0.06);
+}
+
+/* Footer: match the dark brand */
+.md-footer {
+  background-color: var(--ascend-ink);
+}
+.md-footer-meta {
+  background-color: #000;
+}
