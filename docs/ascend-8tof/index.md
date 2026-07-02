@@ -4,9 +4,7 @@ Documentation for the **Ascend-8tof** 360° time-of-flight obstacle-sensing syst
 a carrier board (STM32H5-family MCU) that reads up to **8× VL53L8CX** 8×8
 multizone ToF sensors and streams their measurements as a simple **ASCII distance
 stream over UART**. **Any flight controller or onboard computer** can consume it —
-this documentation uses a **ModalAI VOXL2** as the worked example integration
-because it's the platform we know best, but nothing about the board is
-VOXL-specific.
+this documentation uses a **ModalAI VOXL2** as the worked example integration.
 
 ```
  8× VL53L8CX ──► 360° carrier board ──UART(ASCII 8×8)──► any host

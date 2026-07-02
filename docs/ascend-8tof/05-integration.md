@@ -7,9 +7,8 @@ flight controller (ArduPilot / PX4), a companion computer (Raspberry Pi, NVIDIA
 Jetson, ModalAI VOXL2, …), or even a bare microcontroller.
 
 This page covers the **host-agnostic integration first**, then documents the
-**VOXL2 + voxl-mapper** path in detail as a *worked example* — that's simply the
-platform we know best and ship a ready-made plugin (`voxl-ascend-8tof`) for. None
-of the board or firmware is VOXL-specific.
+**VOXL2 + voxl-mapper** path in detail as a *worked example*, for which Ascend
+ships a ready-made plugin (`voxl-ascend-8tof`).
 
 > Whatever you build — obstacle avoidance, SLAM/mapping, logging, a proximity
 > alarm — you consume the same stream documented in
