@@ -1,5 +1,5 @@
-site_name: Ascend-8tof Documentation
-site_description: 360° VL53L8CX time-of-flight obstacle-sensing system — hardware, firmware, and VOXL integration
+site_name: Ascend Engineering Documentation
+site_description: Documentation for Ascend Engineering hardware and software — UAV companion computers, sensor systems, firmware, and integration guides
 site_author: Ascend Engineering
 
 site_url: https://docs.ascendengineer.com/
@@ -30,21 +30,27 @@ theme:
     - navigation.instant      # SPA-style fast page loads
     - navigation.tracking     # update URL with active anchor
     - navigation.top          # back-to-top button
+    - navigation.tabs         # top-level products as tabs in the header
     - navigation.sections
+    - navigation.indexes      # a section's index page IS its landing page
     - toc.follow
     - search.suggest
     - search.highlight
     - content.code.copy       # copy button on code blocks
     - content.tabs.link
 
+# Top level = one entry per product. Add new hardware/software as sibling
+# sections (each its own folder under docs/) as the docs grow.
 nav:
-  - Overview: index.md
-  - Hardware Overview: 01-hardware.md
-  - Power & Voltage Ranges: 02-power.md
-  - Communications & Protocols: 03-comms-protocol.md
-  - STM32 Firmware: 04-firmware.md
-  - VOXL Integration: 05-voxl-integration.md
-  - Bring-up & Setup: 06-bringup-setup.md
+  - Home: index.md
+  - Ascend 8tof:
+    - ascend-8tof/index.md
+    - Hardware Overview: ascend-8tof/01-hardware.md
+    - Power & Voltage Ranges: ascend-8tof/02-power.md
+    - Communications & Protocols: ascend-8tof/03-comms-protocol.md
+    - STM32 Firmware: ascend-8tof/04-firmware.md
+    - VOXL Integration: ascend-8tof/05-voxl-integration.md
+    - Bring-up & Setup: ascend-8tof/06-bringup-setup.md
 
 markdown_extensions:
   - admonition                # nice callout boxes for the ⚠️ notes
@@ -55,6 +61,11 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.tabbed:
       alternate_style: true
+  - attr_list                  # grid cards on the hub page
+  - md_in_html                 # grid cards on the hub page
+  - pymdownx.emoji:            # :material-...: icons in cards
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - tables
   - toc:
       permalink: true
