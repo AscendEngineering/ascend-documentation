@@ -41,7 +41,7 @@ This is the board's interface to your flight controller or onboard computer.
 
 | Pin | Signal |
 |-----|--------|
-| 1 | +5 V out (protected, optional — do not back-feed) |
+| 1 | +5 V (power input — you can power the board from here) |
 | 2 | RX (into board) |
 | 3 | **TX (out of board)** — connect to your host's RX |
 | 4 | GND |

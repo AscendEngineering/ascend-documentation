@@ -11,7 +11,8 @@ your host. The board ships **pre-flashed by Ascend** with your chosen
 - A DC supply on `J1` — **5 V up to a 6S LiPo** (a regulated 5 V rail or the
   vehicle battery) — **or** a USB-C cable (see [Power](02-power.md)).
 - A USB-UART adapter (921 600-capable) for the bench check, wired to `J7`
-  — *default (sensor-stream) firmware only*.
+  — *default (sensor-stream) firmware only*. Its 5 V/VCC pin can also **power the
+  board** through `J7` pin 1, so an adapter alone is often enough for bench work.
 - For flight integration: **any host with a UART** (flight controller or onboard
   computer). This guide uses a VOXL2 as the worked example; see
   [Integration (any host)](05-integration.md) for other platforms.
@@ -38,7 +39,7 @@ firmware, which talks to a flight controller rather than a terminal.)*
 
 1. Connect the USB-UART adapter to `J7` (board **TX → adapter RX**, GND↔GND), host
    set to **921 600-8N1**.
-2. Power the board (`J1` — 5 V to 6S — or USB-C).
+2. Power the board (`J1` — 5 V to 6S — USB-C, or the adapter's 5 V on `J7` pin 1).
 3. Open the port in any serial terminal:
    ```bash
    screen /dev/tty.usbserial-XXXX 921600     # or minicom -D /dev/ttyUSB0 -b 921600
