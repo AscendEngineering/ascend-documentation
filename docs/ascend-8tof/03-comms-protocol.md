@@ -3,10 +3,18 @@
 The Ascend-8tof system has three communication layers. This page documents each
 one exactly as implemented.
 
-The **host link (layer 2) is the board's only external interface** — a plain ASCII
-UART stream that *any* flight controller or onboard computer can read. Layer 3
-(MPA pipes) is **not part of the board**; it's how our VOXL2 example software
-republishes the stream, shown here only for completeness.
+The **host link (layer 2) is the board's only external interface.** With the
+**default firmware** it's a plain ASCII UART stream that *any* flight controller or
+onboard computer can read (documented on this page). Layer 3 (MPA pipes) is **not
+part of the board** — it's how our VOXL2 example software republishes the stream,
+shown here only for completeness.
+
+!!! note "Alternate firmware changes this link's protocol"
+    The [**ACO firmware** variant (beta)](04-firmware.md#aco-firmware-onboard-collision-avoidance-beta)
+    makes this same USART2 speak **MAVLink v2 at 115 200 baud** (running collision
+    avoidance on-board and sending `OBSTACLE_DISTANCE` to a flight controller)
+    instead of the ASCII stream below. The I²C sensor bus (layer 1) is identical
+    in both firmwares.
 
 ```
  VL53L8CX x8 ──I2C(1MHz)──► TCA9548A mux ──I2C──► STM32H563 ──UART(921600, ASCII)──► any host

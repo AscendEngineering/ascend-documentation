@@ -59,10 +59,13 @@ frame. (The VOXL2 example offloads this last step to voxl-mapper via
 
 ### Notes for other hosts
 
-- **ArduPilot / PX4:** the simplest path is a small companion-computer script that
-  reads the UART and republishes distances over MAVLink (`OBSTACLE_DISTANCE` /
-  `DISTANCE_SENSOR`) or DDS/uORB; the autopilot's built-in obstacle avoidance then
-  consumes them. The 8 channels map naturally onto `OBSTACLE_DISTANCE` sectors.
+- **ArduPilot / PX4:** two options. **(a)** Run the
+  [**ACO firmware** (beta)](04-firmware.md#aco-firmware-onboard-collision-avoidance-beta)
+  — the board itself speaks MAVLink v2 (`OBSTACLE_DISTANCE`) straight to a TELEM
+  port, no companion computer and no ASCII parsing at all. **(b)** With the default
+  firmware, run a small companion-computer script that reads the UART and
+  republishes over MAVLink (`OBSTACLE_DISTANCE` / `DISTANCE_SENSOR`) or DDS/uORB.
+  Either way the 8 channels map naturally onto `OBSTACLE_DISTANCE` sectors.
 - **ROS / ROS 2:** parse the stream in a node and publish `LaserScan`,
   `PointCloud2`, or per-sensor `Range` messages.
 - **Bare MCU:** read ranges directly for a reactive proximity/braking behavior —

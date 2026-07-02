@@ -38,6 +38,9 @@ Bill-of-materials CSVs and a parts summary are in the `bom/` folder of the repo.
 - **Reliable range:** ~4 m (VL53L8CX 8×8 mode).
 - **Output:** plain ASCII per-channel 8×8 grids over UART — consumable by any host.
   (The VOXL2 example republishes them as one MPA pipe per channel for voxl-mapper.)
+- **Firmware options:** a **default sensor-stream** firmware (ASCII, stable) or an
+  **ACO on-board collision-avoidance** firmware (MAVLink v2 straight to a flight
+  controller, **beta**) — see [Firmware](04-firmware.md).
 
 ## Source repositories
 

@@ -1,5 +1,21 @@
 # STM32 Firmware (`ascend-tof8`)
 
+The board ships with **two firmware variants** — same hardware, different job and
+different UART protocol. Pick per how you want to use the sensor:
+
+| Variant | Branch | UART output | Role | Status |
+|---------|--------|-------------|------|--------|
+| **Sensor stream** (default) | `main` | ASCII 8×8 grids @ ≈921 600 | Raw ranging; **you** do avoidance on any host | Stable |
+| **ACO** (collision avoidance) | `ascend-tof8-aco` | **MAVLink v2** @ 115 200 | **On-board** obstacle avoidance straight to a flight controller | **Beta** |
+
+This page documents the **default sensor-stream firmware** first; the
+[ACO firmware](#aco-firmware-onboard-collision-avoidance-beta) section at the
+bottom covers the beta variant.
+
+---
+
+## Sensor-stream firmware (default, `main` branch)
+
 Bare-metal firmware for the main board's **STM32H563RGT6** (Cortex-M33, 64 MHz HSI,
 **no HAL** — direct register access). It brings up as many of the 8 VL53L8CX
 sensors as are present, streams each sensor's 8×8 distance grid over UART.
@@ -117,4 +133,100 @@ N/8 sensors active.
 `ascend-tof8/test/read_tof.py [port]` opens the UART (default
 `/dev/tty.usbserial-1110`, 921600-8N1), prints the incoming grids, and
 auto-reconnects across power cycles. Use it to confirm the board before wiring it
-to the VOXL2.
+to a host.
+
+---
+
+## ACO Firmware — onboard collision avoidance (beta)
+
+!!! warning "Beta"
+    The ACO firmware is **in beta / active development**. Mounting angles,
+    the 250 MHz clock, persistent config, and a watchdog are still on the TODO
+    list, and it hasn't been fully validated against live sensors + a flight
+    controller. Use the default sensor-stream firmware for production until this
+    is finalized.
+
+An alternate firmware that runs Ascend's **collision-avoidance (ACO)** algorithm
+**on the board itself** and talks **MAVLink v2 directly to a flight controller** —
+no companion computer required. It's a C port of the collision-prevention logic
+from Ascend's `ascend-co` software, running under **FreeRTOS**.
+
+- **Branch:** `ascend-tof8-aco` (in the `ascend-tof8` repo).
+- **Get it:** `cd ascend-tof8 && git checkout ascend-tof8-aco`
+- **Source layout:** `src/` + `include/` (FreeRTOS app), `lib/vl53l8cx/` (sensor
+  driver). Key modules: `obstacle_avoidance.c`, `mavlink_io.c`, `i2c_sensors.c`,
+  `mat3f.h`.
+
+### What it does
+
+```
+VL53L8CX ×8 → I2C1 (PB6/PB7) → TCA9548A mux
+    ↓  tof_task (20 Hz) reads all sensors
+    ↓  oa_task (20 Hz) transforms points, runs collision check
+MAVLink TX  → USART2 PA2 → Flight Controller (OBSTACLE_DISTANCE #330)
+MAVLink RX  ← USART2 PA3 ← FC (ODOMETRY #331 / ATTITUDE_QUATERNION #31)
+```
+
+The algorithm (ported from `ObstacleAvoidance` in `ascend-co`):
+
+1. Receive **odometry** (quaternion + velocity) from the FC over MAVLink.
+2. Convert quaternion → roll/pitch/yaw; compute body-local velocity (yaw removed).
+3. Transform the 8-sensor ToF point cloud into the body-local frame.
+4. Build a **velocity-scaled safety cuboid** around the vehicle.
+5. Check whether any obstacle point falls inside the cuboid → collision flag.
+6. Emit **`OBSTACLE_DISTANCE`** (72 bins × 5° = 360°, cm) for the FC's built-in
+   avoidance to act on.
+
+### MAVLink interface
+
+- **Wire:** board `J7`/USART2 → FC TELEM port — **PA2 (TX) → FC RX**, **PA3 (RX)
+  → FC TX**, GND↔GND. **115 200 baud**, MAVLink v2.
+- **Identity:** system id 1, component id **196** (`MAV_COMP_ID_OBSTACLE_AVOIDANCE`).
+- **TX:** `OBSTACLE_DISTANCE` (#330) @ ~20 Hz, `HEARTBEAT` @ 1 Hz, frame
+  `MAV_FRAME_BODY_FRD`.
+- **RX:** `ODOMETRY` (#331) and/or `ATTITUDE_QUATERNION` (#31) from the FC.
+
+### Default tuning parameters (`obstacle_avoidance.h`)
+
+| Parameter | Default | Meaning |
+|-----------|---------|---------|
+| `OA_SAFETY_WIDTH` | 2.0 m | safety cuboid total width |
+| `OA_SAFETY_HEIGHT` | 1.0 m | safety cuboid total height |
+| `OA_SAFETY_VEL_GAIN` | 4.0 | cuboid length = gain × speed |
+| `OA_MOVING_THRESHOLD` | 0.3 m/s | below this the vehicle is treated as stationary |
+| `OA_NUM_BINS` | 72 | 360° / 5° obstacle-distance bins |
+| `OA_MAX_OBSTACLE_POINTS` | 512 | 8 sensors × 64 zones |
+
+### FreeRTOS tasks & status LED
+
+| Task | Rate | Job |
+|------|------|-----|
+| `tof_task` (high) | 20 Hz | read all sensors via the mux |
+| `oa_task` | 20 Hz | OA math + MAVLink TX |
+| `hb_task` (low) | 1 Hz | MAVLink heartbeat |
+| `led_task` (low) | var | status LED (PA5) |
+
+Status LED (PA5): **fast blink (100 ms)** = collision detected; **normal
+(500 ms)** = running, sensors OK; **slow (2 s)** = no sensors online.
+
+### Build & flash
+
+```bash
+cd ascend-tof8
+git checkout ascend-tof8-aco
+make freertos     # clone the FreeRTOS kernel (once)
+make -j8          # build
+make flash        # ST-Link + OpenOCD
+```
+
+### Beta status / known limitations
+
+- **Clock:** currently runs on **HSI (SYSCLK 32 MHz)**; the 250 MHz HSE→PLL config
+  is a TODO (the README's "250 MHz" is the target, not the current state).
+- **Mounting angles** (`sensor_angles_deg[]` in `obstacle_avoidance.c`) need
+  calibration to the real board geometry.
+- Planned: `COMMAND_LONG`/`DO_SET_MODE` (HOLD) to command the FC on collision,
+  persistent OA-parameter storage in flash, and a watchdog.
+- **OpenOCD flashing quirk** on recent ST OpenOCD dev builds is worked around in
+  the branch's `openocd.cfg` — see that branch's README if `make flash` fails with
+  "Unable to reset target".

@@ -12,8 +12,9 @@ UAV companion computers, sensor systems, firmware, and integration guides.
     360° time-of-flight obstacle-sensing system — an STM32H563 carrier board
     reading up to 8× VL53L8CX sensors and emitting a simple ASCII distance
     stream over UART that **any flight controller or onboard computer** can
-    consume. Hardware, power, comms, firmware, and integration (with a VOXL2
-    worked example).
+    consume. Also runs an optional **on-board ACO collision-avoidance firmware**
+    (MAVLink, beta). Hardware, power, comms, firmware, and integration (with a
+    VOXL2 worked example).
 
     [:octicons-arrow-right-24: Open the Ascend 8tof docs](ascend-8tof/index.md)
 
