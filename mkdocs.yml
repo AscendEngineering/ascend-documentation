@@ -2,8 +2,7 @@ site_name: Ascend-8tof Documentation
 site_description: 360° VL53L8CX time-of-flight obstacle-sensing system — hardware, firmware, and VOXL integration
 site_author: Ascend Engineering
 
-# Change this to your published URL (GitLab/GitHub Pages) once known.
-# site_url: https://<group>.gitlab.io/ascend-8tof-docs/
+site_url: https://docs.ascendengineer.com/
 
 theme:
   name: material
