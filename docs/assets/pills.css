@@ -1,0 +1,88 @@
+/* ============================================================
+   "Pill" links — inline call-to-action chips (icon + label).
+   Layered on the shared Ascend brand theme (extra.css) and the
+   portal styles (portal.css). Used for e.g. a Slack "Message Alex"
+   deep link:  [:material-slack: Message Alex](URL){ .pill }
+   ============================================================ */
+
+/* Base pill: a rounded, gold-tinted chip that sits inline in body text.
+   Scoped to `.md-typeset a.pill` so it beats Material's default link
+   color / hover styles without !important. */
+.md-typeset a.pill,
+.md-typeset a.pill:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: .35em;
+  vertical-align: baseline;
+
+  /* A touch tighter on the icon side than the label side (optical). */
+  padding: .12em .62em .12em .5em;
+  border-radius: 999px;
+
+  font-size: .8125em;          /* slightly smaller than body so it reads as a chip */
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: .01em;
+  white-space: nowrap;         /* keep "Message Alex" on one line */
+
+  color: var(--ascend-gold-dark, #C8860F);
+  background: rgba(251, 175, 58, .12);        /* --ascend-gold @ 12% */
+  border: 1px solid rgba(251, 175, 58, .45);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease,
+              color .15s ease, box-shadow .15s ease;
+}
+
+/* Icon: Material renders `:material-slack:` as an inline SVG inside a
+   `.twemoji` span. Size it to the label and tint with currentColor so it
+   follows the pill's text color in every state / theme. */
+.md-typeset a.pill .twemoji {
+  display: inline-flex;
+  align-items: center;
+}
+.md-typeset a.pill svg {
+  width: 1.05em;
+  height: 1.05em;
+  fill: currentColor;
+  flex: 0 0 auto;
+}
+
+/* Hover / focus / active: fill with brand gold, ink-dark text — mirrors
+   the header "Log out" button in portal.css for a consistent feel. */
+.md-typeset a.pill:hover,
+.md-typeset a.pill:focus,
+.md-typeset a.pill:active {
+  background: var(--ascend-gold, #FBAF3A);
+  border-color: var(--ascend-gold, #FBAF3A);
+  color: #111;
+  text-decoration: none;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .18);
+}
+
+/* Visible keyboard-focus ring (does not fire on mouse click). */
+.md-typeset a.pill:focus-visible {
+  outline: 2px solid var(--ascend-gold-dark, #C8860F);
+  outline-offset: 2px;
+}
+
+/* ---- Dark mode (Material "slate" scheme) ------------------------------
+   The dark gold used for light-mode text is too low-contrast on a dark
+   surface, so switch the resting text/icon to bright brand gold. Hover
+   still inverts to gold-fill + dark text. */
+[data-md-color-scheme="slate"] .md-typeset a.pill,
+[data-md-color-scheme="slate"] .md-typeset a.pill:visited {
+  color: var(--ascend-gold, #FBAF3A);
+  background: rgba(251, 175, 58, .14);
+  border-color: rgba(251, 175, 58, .38);
+}
+[data-md-color-scheme="slate"] .md-typeset a.pill:hover,
+[data-md-color-scheme="slate"] .md-typeset a.pill:focus,
+[data-md-color-scheme="slate"] .md-typeset a.pill:active {
+  background: var(--ascend-gold, #FBAF3A);
+  border-color: var(--ascend-gold, #FBAF3A);
+  color: #111;
+}
+[data-md-color-scheme="slate"] .md-typeset a.pill:focus-visible {
+  outline-color: var(--ascend-gold, #FBAF3A);
+}

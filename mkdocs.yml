@@ -45,12 +45,12 @@ nav:
   - Home: index.md
   - Ascend 8tof:
     - ascend-8tof/index.md
-    - Hardware Overview: ascend-8tof/01-hardware.md
-    - Power & Voltage Ranges: ascend-8tof/02-power.md
-    - Communications & Protocols: ascend-8tof/03-comms-protocol.md
-    - STM32 Firmware: ascend-8tof/04-firmware.md
+    - Hardware overview: ascend-8tof/01-hardware.md
+    - Power & voltage ranges: ascend-8tof/02-power.md
+    - Communications & protocols: ascend-8tof/03-comms-protocol.md
+    - STM32 firmware: ascend-8tof/04-firmware.md
     - Integration (any host): ascend-8tof/05-integration.md
-    - Bring-up & Setup: ascend-8tof/06-bringup-setup.md
+    - Bring-up & setup: ascend-8tof/06-bringup-setup.md
 
 markdown_extensions:
   - admonition                # nice callout boxes for the ⚠️ notes
@@ -74,7 +74,9 @@ plugins:
   - search
 
 extra_css:
-  - assets/extra.css
+  - assets/extra.css           # shared Ascend brand theme
+  - assets/site.css            # site-specific layer (sentence-case headings)
+  - assets/pills.css           # inline "pill" CTA links (e.g. Contact Ascend Engineering)
 
 extra:
   # Add real handles when ready, e.g.:

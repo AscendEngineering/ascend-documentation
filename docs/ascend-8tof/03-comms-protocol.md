@@ -1,9 +1,6 @@
-# Communications — UART Output
+# Communications: UART output
 
-The board's interface to your system is a single **UART** on the host connector
-(`J7`). With the **default firmware** it emits a plain **ASCII distance stream**
-that any flight controller or onboard computer can read — this page is the
-complete spec for that stream.
+The board exposes a single **UART** on the host connector (`J7`). With the **default firmware** it emits a plain **ASCII distance stream** that a flight controller or onboard computer can read. This page defines that stream.
 
 !!! note "Alternate firmware changes this link's protocol"
     The [**ACO firmware** variant (beta)](04-firmware.md#aco-firmware-onboard-collision-avoidance-beta)
@@ -18,20 +15,16 @@ complete spec for that stream.
 - **Format:** 8 data bits, no parity, 1 stop bit (**8N1**), no flow control.
 - **Direction:** one-way (board → host).
 
-## Baud rate — important
+## Baud rate: important
 
 Configure your host for **≈921 600 baud**.
 
-- 921 600 is chosen because it's the fastest rate typical flight-controller UARTs
-  and USB-UART adapters receive reliably.
-- ⚠️ Some older material / a boot banner may mention **115 200** — that's stale.
-  Use **921 600**.
+- 921 600 is the highest rate typical flight-controller UARTs and USB-UART adapters receive reliably.
+- ⚠️ Some older material or a boot banner may mention **115 200**. That value is stale. Use **921 600**.
 
 ## Wire format (ASCII)
 
-For every sensor with new data, the board prints a header line then eight rows of
-eight integers. Distances are in **millimetres**; **`0` means invalid / no
-return** (see [Measurement validity](#measurement-validity)).
+For every sensor with new data, the board prints a header line followed by eight rows of eight integers. Distances are in **millimetres**. **`0` means invalid or no return** (see [Measurement validity](#measurement-validity)).
 
 ```
 --- CH<n> ---
@@ -39,20 +32,15 @@ return** (see [Measurement validity](#measurement-validity)).
  ...                    (rows 1..7)
 ```
 
-- Header: literal `--- CH` followed by the channel digit `0`–`7` and ` ---`.
-- Each of the 8 rows: 8 integers → an **8×8 = 64-zone grid** for that channel,
-  row-major, in the sensor's own frame.
-- Frames stream at the ranging rate (**15 Hz** per sensor); channels are printed
-  round-robin as each sensor reports new data.
+- Header: literal `--- CH` followed by the channel digit `0` to `7` and ` ---`.
+- Each of the 8 rows: 8 integers → an **8×8 = 64-zone grid** for that channel, row-major, in the sensor's own frame.
+- Frames stream at the ranging rate (**15 Hz** per sensor). Channels are printed round-robin as each sensor reports new data.
 
-So the full stream is, per channel, an **8×8 matrix of millimetre distances** —
-one matrix per sensor, updating at 15 Hz.
+The stream is, per channel, an **8×8 matrix of millimetre distances**. One matrix per sensor, updating at 15 Hz.
 
 ### Example output
 
-A live capture looks like this — each channel's 8×8 grid arrives in turn and the
-sequence repeats at 15 Hz. Here CH3 sees an object ~0.4 m dead center against a
-wall ~2 m out; CH5 sees mostly open space (`0` = no return):
+A live capture looks like this. Each channel's 8×8 grid arrives in turn and the sequence repeats at 15 Hz. Here CH3 sees an object ~0.4 m dead center against a wall ~2 m out. CH5 sees mostly open space (`0` = no return):
 
 ```text
 --- CH3 ---
@@ -79,13 +67,11 @@ wall ~2 m out; CH5 sees mostly open space (`0` = no return):
      0     0     0     0     0     0     0     0
 ```
 
-Each value is a right-aligned integer (millimetres) in a fixed-width column, so
-columns line up and are whitespace-separated. Only channels with a connected,
-ranging sensor appear.
+Each value is a right-aligned integer (millimetres) in a fixed-width column, so columns line up and are whitespace-separated. Only channels with a connected, ranging sensor appear.
 
 ### Reading it directly
 
-Any serial terminal or a few lines of code will do — no special tooling:
+Any serial terminal or a few lines of code will do. No special tooling:
 
 ```bash
 # any serial terminal, 921600-8N1, e.g.
@@ -98,6 +84,6 @@ To turn the grids into 3-D points or obstacle data, see
 
 ## Measurement validity
 
-The board emits **`0` for any zone that is not a real measurement** (no/low
+The board emits **`0` for any zone that is not a real measurement** (no or low
 signal, out of range, etc.). Treat `0` as **"no return"**, never as "obstacle at
 0 mm". All non-zero values are valid distances in millimetres.
