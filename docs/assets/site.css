@@ -1,0 +1,11 @@
+/* ============================================================
+   Documentation-site-specific styles, layered on the shared
+   Ascend brand theme (extra.css).
+   ============================================================ */
+
+/* ---- Headings: normal case (override the brand theme's uppercase h1/h2) ---- */
+.md-typeset h1,
+.md-typeset h2 {
+  text-transform: none;
+  letter-spacing: normal;
+}
