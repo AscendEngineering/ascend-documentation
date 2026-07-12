@@ -22,6 +22,7 @@ this documentation uses a **ModalAI VOXL2** as the worked example integration.
 | 04 | [Firmware](04-firmware.md) | What each firmware variant does and how it's used |
 | 05 | [Integration (any host)](05-integration.md) | Host-agnostic recipe + VOXL2/voxl-mapper worked example |
 | 06 | [Bring-up & Setup](06-bringup-setup.md) | Assemble → power → verify → integrate → troubleshoot |
+| 07 | [Obstacle Avoidance (Setpoint Streaming)](07-obstacle-avoidance.md) | Onboard VFH → `SET_POSITION_TARGET` → forked-PX4 fusion in Position/Mission |
 
 ## Key facts at a glance
 

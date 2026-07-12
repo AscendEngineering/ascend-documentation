@@ -51,6 +51,7 @@ nav:
     - STM32 Firmware: ascend-8tof/04-firmware.md
     - Integration (any host): ascend-8tof/05-integration.md
     - Bring-up & Setup: ascend-8tof/06-bringup-setup.md
+    - Obstacle Avoidance (Setpoint Streaming): ascend-8tof/07-obstacle-avoidance.md
 
 markdown_extensions:
   - admonition                # nice callout boxes for the ⚠️ notes
