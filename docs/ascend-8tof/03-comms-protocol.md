@@ -8,11 +8,6 @@
 | **MAVLink v2** | board → host (and host → board) | **always, unconditionally** |
 | **Point-cloud link** (`0xA5 0x5A` framed) | board → host, on request | **only while a host asks for it** |
 
-!!! warning "v1's ASCII stream is gone"
-    v1 emitted plain-text `--- CH<n> ---` blocks followed by rows of integers.
-    **v2 does not emit ASCII at all.** Both v2 protocols are binary and
-    CRC-checked. Any v1 parser will need rewriting.
-
 ## Why a passive listener sees only MAVLink
 
 This is the single most common surprise on v2, and it is deliberate.

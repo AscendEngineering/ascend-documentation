@@ -12,15 +12,6 @@ single UART.
                                      (on request)
 ```
 
-!!! info "v2 is a new board, not a revision"
-    v2 replaces the earlier 40 × 40 mm vertical board. **Connector numbering, the
-    channel map, the input voltage range and the UART protocol all changed.**
-    Three differences will bite anyone carrying over v1 knowledge:
-
-    - **The nose is CH7 (`J8`)**, not CH3.
-    - **Input is 5 V only** — v1 accepted up to a 6S LiPo; v2 will not survive it.
-    - **There is no ASCII stream.** Both protocols are binary and CRC-checked.
-
 ## Documentation map
 
 | # | Document | Contents |

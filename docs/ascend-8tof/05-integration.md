@@ -5,12 +5,6 @@ PX4. There is no plugin to install and no custom autopilot build: the board
 emits `OBSTACLE_DISTANCE` (#330) and PX4's built-in collision prevention does
 the avoiding.
 
-!!! info "This replaced the v1 integration path"
-    v1 exposed an ASCII stream consumed by the `voxl-ascend-8tof` plugin feeding
-    voxl-mapper. **v2 emits no ASCII**, so that plugin does not apply. If you
-    want the raw cloud on a host, read it with the binary protocol — see
-    [Communications](03-comms-protocol.md).
-
 ## Wiring
 
 | Board | Host |

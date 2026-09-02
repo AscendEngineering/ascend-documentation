@@ -3,10 +3,10 @@
 v2 takes a **single 5 V input** on `J5` pin 1 and generates the sensor rails
 on-board. You never supply sensor voltages yourself.
 
-!!! danger "5 V only — this changed from v1"
-    The earlier vertical board accepted anything from 5 V to a 6S LiPo. **v2 does
-    not have a wide-input regulator.** `J5` pin 1 feeds a 3.3 V LDO directly
-    through a Schottky diode. Wiring a flight battery to v2 will destroy it.
+!!! danger "5 V only"
+    There is **no wide-input regulator.** `J5` pin 1 feeds a 3.3 V LDO directly
+    through a series Schottky diode. Wiring a flight battery to it will destroy
+    the board.
 
 ## Input
 
@@ -14,7 +14,7 @@ on-board. You never supply sensor voltages yourself.
 |-----------|-------|
 | **Input voltage** | **5 V nominal** |
 | **Maximum** | **~5.5 V** — see the limit below |
-| Connector | `J5` pin 1 (JST GH 1.25 mm, 4-pin) |
+| Connector | `J5` pin 1 (JST GH 1.25 mm, 4-pin) — [which pin, in a photo](01-hardware.md#connectors--pinouts) |
 | Typical current | well under **500 mA** in steady ranging |
 | Peak current | brief inrush at power-on as all eight sensors initialise |
 | Protection | **reverse polarity only** (`D2`, SS14 Schottky in series) |
