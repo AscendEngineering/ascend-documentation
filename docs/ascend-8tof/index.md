@@ -1,39 +1,47 @@
-# Ascend-8tof — System Documentation
+# Ascend-8tof v2 — System Documentation
 
-Documentation for the **Ascend-8tof** 360° time-of-flight obstacle-sensing system:
-a carrier board (STM32H5-family MCU) that reads up to **8× VL53L8CX** 8×8
-multizone ToF sensors and streams their measurements as a simple **ASCII distance
-stream over UART**. **Any flight controller or onboard computer** can consume it —
-this documentation uses a **ModalAI VOXL2** as the worked example integration.
+Documentation for the **Ascend-8tof v2** 360° time-of-flight obstacle-sensing
+system: a 30 × 30 mm carrier board (STM32H563) reading **8× VL53L8CX** 8×8
+multizone ToF sensors and speaking **MAVLink** to a flight controller over a
+single UART.
 
 ```
- 8× VL53L8CX ──► 360° carrier board ──UART(ASCII 8×8)──► any host
-  (8×8 grids)     (onboard mux + MCU)                    (FC / onboard computer)
-                                                         └─ e.g. VOXL2 + voxl-mapper (example)
+ 8× VL53L8CX ──► carrier board ──┬── MAVLink OBSTACLE_DISTANCE ──► PX4 collision prevention
+  (8×8 grids)   (mux + STM32H5)  │   (always on)
+                                 └── 512-zone point cloud ──────► configurator / your host
+                                     (on request)
 ```
+
+!!! info "v2 is a new board, not a revision"
+    v2 replaces the earlier 40 × 40 mm vertical board. **Connector numbering, the
+    channel map, the input voltage range and the UART protocol all changed.**
+    Three differences will bite anyone carrying over v1 knowledge:
+
+    - **The nose is CH7 (`J8`)**, not CH3.
+    - **Input is 5 V only** — v1 accepted up to a 6S LiPo; v2 will not survive it.
+    - **There is no ASCII stream.** Both protocols are binary and CRC-checked.
 
 ## Documentation map
 
 | # | Document | Contents |
 |---|----------|----------|
-| 01 | [Hardware Overview](01-hardware.md) | Boards, sensor, connectors & pinouts, mechanical mounting |
-| 02 | [Power](02-power.md) | Input voltage & current range, how to power it |
-| 03 | [Communications — UART Output](03-comms-protocol.md) | The ASCII 8×8 distance stream (the interface you consume) |
-| 04 | [Firmware](04-firmware.md) | What each firmware variant does and how it's used |
-| 05 | [Integration (any host)](05-integration.md) | Host-agnostic recipe + VOXL2/voxl-mapper worked example |
+| 01 | [Hardware Overview](01-hardware.md) | Board, connectors & pinouts, channel map, mounting |
+| 02 | [Power](02-power.md) | Input voltage limits and how to power it |
+| 03 | [Communications](03-comms-protocol.md) | MAVLink output and the binary point-cloud link |
+| 04 | [Firmware](04-firmware.md) | Build variants, flashing, diagnostic builds |
+| 05 | [Integration](05-integration.md) | PX4 collision prevention + VOXL2 worked example |
 | 06 | [Bring-up & Setup](06-bringup-setup.md) | Assemble → power → verify → integrate → troubleshoot |
-| 07 | [Obstacle Avoidance (Setpoint Streaming)](07-obstacle-avoidance.md) | Onboard VFH → `SET_POSITION_TARGET` → forked-PX4 fusion in Position/Mission |
+| 07 | [Obstacle Avoidance (onboard VFH)](07-obstacle-avoidance.md) | The alternative `AVOID=vfh` path, needing the Ascend PX4 fork |
 
 ## Key facts at a glance
 
-- **Sensors:** up to 8× VL53L8CX, each an **8×8 zone grid at 15 Hz**, forming a
-  360° ring.
+- **Sensors:** 8× VL53L8CX, each an **8×8 zone grid at 15 Hz**, forming a 360° ring.
 - **Reliable range:** ~4 m (8×8 mode); ~45° field of view per axis.
-- **Power:** single DC input — **5 V up to a 6S LiPo** on `J1` (or 5 V USB-C);
-  < 500 mA typical — see [Power](02-power.md).
-- **Output:** plain ASCII per-channel **8×8 distance matrices** over UART at
-  **≈921 600 baud 8N1** — consumable by any host (see
-  [Communications](03-comms-protocol.md#baud-rate-important)).
-- **Firmware options:** a **default sensor-stream** firmware (ASCII, stable) or an
-  **ACO on-board collision-avoidance** firmware (MAVLink v2 straight to a flight
-  controller, **beta**) — see [Firmware](04-firmware.md).
+- **Power:** **5 V only** on `J5` pin 1, < 500 mA typical — see [Power](02-power.md).
+- **Host link:** one UART at **921 600 8N1** carrying MAVLink (always) and the
+  point cloud (on request).
+- **Default output:** `OBSTACLE_DISTANCE` (#330) at 10 Hz, 72 bins × 5°, straight
+  into **stock PX4 collision prevention** — no custom autopilot build.
+- **Mounting:** the tip of the **A** on the lid is the nose = **CH7 (`J8`)**.
+- **Configurator:** <https://tools.ascendengineer.com> — live 3D cloud and zone
+  masking in Chrome.

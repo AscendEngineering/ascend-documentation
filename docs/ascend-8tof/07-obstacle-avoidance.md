@@ -1,6 +1,15 @@
 # Obstacle Avoidance — Onboard VFH + PX4 Setpoint Fusion
 
-This page explains a third avoidance approach for the Ascend-8tof: the board runs
+!!! warning "This is the `AVOID=vfh` path — not the default"
+    The **default v2 firmware is `AVOID=cp`**, which emits `OBSTACLE_DISTANCE`
+    into **stock PX4** and needs no custom autopilot. Start with
+    [Integration](05-integration.md).
+
+    Everything on this page requires the **Ascend PX4 fork**. Use it only if you
+    need avoidance in **Mission mode**, which stock collision prevention does not
+    provide.
+
+This page explains an alternative avoidance approach for the Ascend-8tof: the board runs
 the avoidance planner **on-board**, computes the *best evasive motion itself*, and
 **streams velocity setpoints** to a **PX4 flight controller** that has been
 extended to accept and blend them during normal flight. The drone steers around
@@ -9,11 +18,11 @@ obstacles while a mission or the pilot stays in control.
 !!! note "Where this sits vs. the other firmware"
     | Approach | Who decides the maneuver | Talks to FC as | Avoids in |
     |----------|--------------------------|----------------|-----------|
-    | **Sensor stream** (default) | Your host | ASCII 8×8 grids | up to you |
-    | **ACO** ([firmware](04-firmware.md)) | The board | `OBSTACLE_DISTANCE` → PX4 Collision Prevention (brake/deflect) | Position mode |
-    | **Setpoint streaming** (this page) | The board (VFH) | `SET_POSITION_TARGET` → **forked PX4** (fuse & steer) | **Position *and* Mission** |
+    | **`AVOID=cp`** (default) | PX4 | `OBSTACLE_DISTANCE` (#330) → stock PX4 collision prevention (brake/deflect) | Position mode |
+    | **`AVOID=vfh`** (this page) | The board (VFH) | `SET_POSITION_TARGET` (#84) → **forked PX4** (fuse & steer) | **Position *and* Mission** |
+    | Raw point cloud | Your host | binary 512-zone frames | up to you |
 
-    The key difference from ACO: instead of feeding PX4 raw obstacle distances and
+    The key difference from `AVOID=cp`: instead of feeding PX4 raw obstacle distances and
     letting *its* built-in logic brake, the board computes the **actual escape
     velocity** and PX4 just executes it. This works in **Mission mode too**.
 
