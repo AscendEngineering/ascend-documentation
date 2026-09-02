@@ -43,7 +43,7 @@ theme:
 # sections (each its own folder under docs/) as the docs grow.
 nav:
   - Home: index.md
-  - Ascend 8tof:
+  - Ascend 8tof v2:
     - ascend-8tof/index.md
     - Hardware Overview: ascend-8tof/01-hardware.md
     - Power & Voltage Ranges: ascend-8tof/02-power.md
