@@ -10,12 +10,13 @@ make BOARD=horiz3 AVOID=cp          # v2, PX4 CollisionPrevention (default)
 
 ## Board variant — `BOARD=`
 
-| Value | Board |
-|-------|-------|
-| **`horiz3`** | **v2** (`oa_pcb_STM32H5_horizontal`). No USB; `J5` carries MAVLink *and* the gated point cloud. |
-| `tof8` | v1 (vertical). USB-C CDC for the cloud, USART2 for MAVLink. Needs `make usbdeps`. |
+Always build with **`BOARD=horiz3`** (`oa_pcb_STM32H5_horizontal`). It selects the
+single-UART configuration: `J5` carries MAVLink *and* the gated point cloud.
 
-Always pass `BOARD=horiz3` for v2. The default is `tof8` for historical reasons.
+!!! warning "`BOARD=` does not default to this board"
+    The Makefile's default targets a different variant, so omitting `BOARD=horiz3`
+    silently builds an image that will not work here. Pass it every time — or use
+    `tools/flash-board.sh`, which sets it for you.
 
 ## Avoidance output — `AVOID=`
 

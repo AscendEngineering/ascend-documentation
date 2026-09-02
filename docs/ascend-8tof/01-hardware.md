@@ -1,18 +1,11 @@
 # Hardware Overview
 
-!!! note "Photos pending"
-    Drop board photos into `docs/ascend-8tof/assets/` and uncomment the figure
-    below. The assembled unit is an octagonal printed case with the orange
-    Ascend **A** on the lid; the tip of the **A** marks the nose, and the sensor
-    beneath it is **CH7 (`J8`)**.
-
-<!-- Uncomment once docs/ascend-8tof/assets/v2-assembled.jpg exists:
 <figure markdown="span">
-  ![Assembled Ascend-8tof v2 in its printed case, Ascend "A" on the lid](assets/v2-assembled.jpg){ width="380" }
+  ![Assembled Ascend-8tof v2 in its printed case, Ascend "A" on the lid](assets/v2-assembled.jpg){ width="420" }
   <figcaption>Assembled Ascend-8tof v2. The tip of the <strong>A</strong> marks the
-  nose — the sensor beneath it is <strong>CH7 (J8)</strong>.</figcaption>
+  nose — the sensor behind the slot beneath it is <strong>CH7 (J8)</strong>.
+  Each of the eight faces carries one VL53L8CX looking outward.</figcaption>
 </figure>
--->
 
 The Ascend-8tof v2 is a **360° time-of-flight obstacle-sensing system** built from
 two board types:
@@ -22,12 +15,6 @@ two board types:
    regulation, a host UART and a SWD port.
 2. **TOF sub-board (×8)** — one per channel, carrying a single **VL53L8CX** 8×8
    multizone ToF sensor. Eight plug into the main board to form the ring.
-
-!!! info "v2 replaces the earlier vertical board"
-    v2 is a different PCB from the original 40 × 40 mm vertical board, not a
-    revision of it. **Connector numbering, the channel map, the power input
-    range and the UART protocol all changed.** Nothing on this page carries
-    over to v1 hardware.
 
 ## Sensor at a glance
 
@@ -51,6 +38,19 @@ USB-C on v2** — `PA11`/`PA12` are unrouted, so all host traffic goes over `J5`
 | **`J6`** | JST GH 1.25 mm, 6-pin (SM06B-GHS-TB) | SWD — flashing and debug |
 | **`J1`–`J4`, `J7`–`J10`** | 1.00 mm pin header, 1×05 | TOF sub-boards, one per channel |
 
+<figure markdown="span">
+  ![Underside of the assembled unit showing J6 (6-pin, upper left) and J5 (4-pin, lower right), each with its supply pin marked in red](assets/v2-connectors.jpg){ width="440" }
+  <figcaption>The two JST connectors, seen from the underside.
+  <strong>J6</strong> (6-pin, upper left) and <strong>J5</strong> (4-pin, lower
+  right). The <span style="color:#d33">red dots</span> mark the <strong>supply
+  pin on each</strong> — <code>J5</code> pin 1 (<strong>VIN, 5 V</strong>) and
+  <code>J6</code> pin 6 (+3V3). Use them to orient a cable before plugging it
+  in: they are at opposite ends of the two connectors.</figcaption>
+</figure>
+
+**Power goes into `J5`** — the 4-pin connector, on the pin marked red. `J6` is
+SWD; its +3V3 pin is a probe reference, not a way to power the board.
+
 ### `J5` — power + host UART
 
 This single connector is both how you power the board and how you talk to it.
@@ -62,9 +62,9 @@ This single connector is both how you power the board and how you talk to it.
 | 3 | **TX** (`PA2`) | out | to your host's RX |
 | 4 | **GND** | — | must be common with the host |
 
-!!! danger "Pin 1 is 5 V, not a battery input"
-    v1 accepted up to a 6S LiPo. **v2 does not.** `J5` pin 1 feeds a 3.3 V LDO
-    whose absolute maximum input is 6 V. Anything above ~5.5 V risks destroying
+!!! danger "Pin 1 is a regulated 5 V input, not a battery input"
+    `J5` pin 1 feeds a 3.3 V LDO whose absolute maximum input is **6 V**, with no
+    overvoltage protection in front of it. Anything above ~5.5 V risks destroying
     the board. See [Power](02-power.md).
 
 ### `J6` — SWD
@@ -108,10 +108,9 @@ sensor's bearing in firmware:
 | CH5 | `J10` | 270° | left |
 | CH6 | `J7` | 315° | front-left |
 
-!!! warning "CH7 is the nose on v2 — not CH3"
-    The v1 documentation stated CH3 faced the nose. That does not apply to v2,
-    and the mapping above is verified two independent ways: the connector
-    centroids in the PCB place the eight at 45° steps in the clockwise order
+!!! note "How the mapping is verified"
+    The table above is confirmed two independent ways: the connector centroids in
+    the PCB place the eight at 45° steps in the clockwise order
     `J8, J4, J3, J2, J1, J9, J10, J7`, and the TCA9548A netlist assigns its
     channel pin-pairs in the order `J4, J3, J2, J1, J9, J10, J7, J8` = CH0..CH7.
     Both agree with the physical build.
@@ -150,8 +149,8 @@ pulled up by `R2`/`R3`). Only one channel is connected at a time.
 |------|------|
 | **Carrier board** | **30 × 30 mm** |
 | **TOF sub-board** (each) | **8 × 7 mm** |
-| Assembled unit (in case) | *to be confirmed* |
-| Weight | *to be confirmed* |
+| **Assembled weight** (in case) | **15 g** |
+| **Bare PCB weight** | **~9 g** |
 
 ## Mechanical / mounting
 
