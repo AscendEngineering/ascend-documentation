@@ -1,18 +1,11 @@
 # Hardware Overview
 
-!!! note "Photos pending"
-    Drop board photos into `docs/ascend-8tof/assets/` and uncomment the figure
-    below. The assembled unit is an octagonal printed case with the orange
-    Ascend **A** on the lid; the tip of the **A** marks the nose, and the sensor
-    beneath it is **CH7 (`J8`)**.
-
-<!-- Uncomment once docs/ascend-8tof/assets/v2-assembled.jpg exists:
 <figure markdown="span">
-  ![Assembled Ascend-8tof v2 in its printed case, Ascend "A" on the lid](assets/v2-assembled.jpg){ width="380" }
+  ![Assembled Ascend-8tof v2 in its printed case, Ascend "A" on the lid](assets/v2-assembled.jpg){ width="420" }
   <figcaption>Assembled Ascend-8tof v2. The tip of the <strong>A</strong> marks the
-  nose — the sensor beneath it is <strong>CH7 (J8)</strong>.</figcaption>
+  nose — the sensor behind the slot beneath it is <strong>CH7 (J8)</strong>.
+  Each of the eight faces carries one VL53L8CX looking outward.</figcaption>
 </figure>
--->
 
 The Ascend-8tof v2 is a **360° time-of-flight obstacle-sensing system** built from
 two board types:
