@@ -1,89 +1,167 @@
-# Communications: UART output
+# Communications — UART Protocols
 
-The board exposes a single **UART** on the host connector (`J7`). With the **default firmware** it emits a plain **ASCII distance stream** that a flight controller or onboard computer can read. This page defines that stream.
+`J5` is v2's only host connector, and it carries **two protocols at once** at
+**921 600 baud, 8N1**:
 
-!!! note "Alternate firmware changes this link's protocol"
-    The [**ACO firmware** variant (beta)](04-firmware.md#aco-firmware-onboard-collision-avoidance-beta)
-    makes this same UART speak **MAVLink v2 at 115 200 baud** (running collision
-    avoidance on-board and sending `OBSTACLE_DISTANCE` to a flight controller)
-    instead of the ASCII stream below.
+| Protocol | Direction | When it runs |
+|----------|-----------|--------------|
+| **MAVLink v2** | board → host (and host → board) | **always, unconditionally** |
+| **Point-cloud link** (`0xA5 0x5A` framed) | board → host, on request | **only while a host asks for it** |
 
-## Physical
+## Why a passive listener sees only MAVLink
 
-- **Connector:** `J7` (see [Hardware → Host UART](01-hardware.md#host-uart-connector-j7-4-pin)).
-  Board TX (pin 3) → host RX, GND (pin 4) → host GND.
-- **Format:** 8 data bits, no parity, 1 stop bit (**8N1**), no flow control.
-- **Direction:** one-way (board → host).
+This is the single most common surprise on v2, and it is deliberate.
 
-## Baud rate: important
+`J5` is the board's only UART, so it has to serve both the flight controller and
+the configurator. Rather than a mode switch — which could leave a vehicle flying
+with avoidance disabled if it ever got stuck — **MAVLink always runs**, and only
+the high-rate point cloud is gated:
 
-Configure your host for **≈921 600 baud**.
+- Any valid point-cloud command received from a host **arms** streaming and
+  refreshes a deadline (`UART_LINK_GATE_MS`, 3 s).
+- When the host stops talking, the deadline lapses and the cloud stops on its own.
+- **At boot the gate is shut.**
 
-- 921 600 is the highest rate typical flight-controller UARTs and USB-UART adapters receive reliably.
-- ⚠️ Some older material or a boot banner may mention **115 200**. That value is stale. Use **921 600**.
+So on the bench with a configurator attached you get the full cloud, and in
+flight with nothing attached the link carries only MAVLink. Avoidance is never
+suspended either way.
 
-## Wire format (ASCII)
+**The practical consequence:** you cannot sniff the point cloud. You have to ask
+for it and keep asking, roughly once a second. If you are seeing MAVLink and no
+`0xA5 0x5A` frames, that is the gate, not a fault.
 
-For every sensor with new data, the board prints a header line followed by eight rows of eight integers. Distances are in **millimetres**. **`0` means invalid or no return** (see [Measurement validity](#measurement-validity)).
+Receive needs no gating — the USART2 interrupt mirrors every incoming byte to
+both parsers, and each ignores what it does not recognise (MAVLink syncs on
+`0xFD`, the point-cloud link on `0xA5 0x5A`, and both are CRC-checked).
+
+## MAVLink output
+
+What the board emits depends on the firmware variant (see
+[Firmware](04-firmware.md)):
+
+| Message | ID | Rate | Variant |
+|---------|-----|------|---------|
+| `HEARTBEAT` | 0 | 1 Hz | all |
+| `OBSTACLE_DISTANCE` | **330** | **10 Hz** | `AVOID=cp` (default) |
+| `SET_POSITION_TARGET_LOCAL_NED` | 84 | — | `AVOID=vfh` |
+
+The board also *parses* `ODOMETRY` (331) and `ATTITUDE_QUATERNION` (31) coming
+back from the flight controller, and uses the attitude for tilt compensation.
+
+### `OBSTACLE_DISTANCE` field values
+
+These are what PX4's collision prevention consumes; the values are chosen to
+satisfy its gates exactly.
+
+| Field | Value |
+|-------|-------|
+| `frame` | `MAV_FRAME_BODY_FRD` (12) |
+| `sensor_type` | `MAV_DISTANCE_SENSOR_UNKNOWN` |
+| `increment_f` | **5.0°** |
+| `angle_offset` | **2.5°** (bin centres, not edges) |
+| `distances[]` | **72 bins**, centimetres |
+| `min_distance` | **50 cm** |
+| `max_distance` | **400 cm** |
+
+Two sentinel values matter:
+
+- **`401` (`max_distance + 1`)** — bin is covered by a sensor and is **clear**.
+- **`65535` (`UINT16_MAX`)** — bin is **not covered** (sensor offline, masked, or
+  outside any field of view). PX4 treats unknown as blocking unless `CP_GO_NO_DATA`
+  is set.
+
+A bin is only reported clear if a live, unmasked sensor column actually covers
+it. That distinction is what stops a dead sensor from being read as open space.
+
+## Point-cloud link
+
+The binary protocol the browser configurator speaks, carrying the **raw,
+unmasked** 512-zone cloud plus the read/write path for the persistent zone mask.
+
+### Framing
 
 ```
---- CH<n> ---
- 1234  1230  1228 ...   (row 0: 8 space-padded integers, mm)
- ...                    (rows 1..7)
+0xA5 0x5A  <type:u8>  <len:u16 LE>  <payload[len]>  <crc16:u16 LE>
 ```
 
-- Header: literal `--- CH` followed by the channel digit `0` to `7` and ` ---`.
-- Each of the 8 rows: 8 integers → an **8×8 = 64-zone grid** for that channel, row-major, in the sensor's own frame.
-- Frames stream at the ranging rate (**15 Hz** per sensor). Channels are printed round-robin as each sensor reports new data.
+CRC-16/MCRF4XX ("X.25") over `type + len + payload`. The two-byte sync word plus
+the CRC lets a host that connects mid-stream resynchronise unambiguously, and
+lets it skip the interleaved MAVLink bytes.
 
-The stream is, per channel, an **8×8 matrix of millimetre distances**. One matrix per sensor, updating at 15 Hz.
+### Message types
 
-### Example output
+| Direction | ID | Name | Payload |
+|-----------|-----|------|---------|
+| board → host | `0x01` | `INFO` | geometry: sensor count, grid size, per-channel bearings, mask sequence |
+| board → host | `0x02` | `FRAME` | the full 512-zone cloud (below) |
+| board → host | `0x03` | `MASK` | current 512-byte zone mask |
+| board → host | `0x04` | `ACK` | reply to a host command |
+| board → host | `0x05` | `DIAG` | why bring-up failed, per channel |
+| host → board | `0x81` | `GET_INFO` | — |
+| host → board | `0x82` | `GET_MASK` | — |
+| host → board | `0x83` | `SET_MASK` | 512 gate bytes (RAM only) |
+| host → board | `0x84` | `SAVE_MASK` | persist RAM mask to flash |
+| host → board | `0x85` | `STREAM` | `u8` enable |
+| host → board | `0x86` | `GET_DIAG` | — |
 
-A live capture looks like this. Each channel's 8×8 grid arrives in turn and the sequence repeats at 15 Hz. Here CH3 sees an object ~0.4 m dead center against a wall ~2 m out. CH5 sees mostly open space (`0` = no return):
+Any of the host → board messages re-arms the 3 s gate, so `GET_INFO` doubles as
+a keepalive.
 
-```text
---- CH3 ---
-  2015  2011  1998  1205  1199  1990  2005  2018
-  2012  2004  1210   812   809  1201  1995  2010
-  2008  1998   815   498   495   810  1988  2003
-  1995  1201   495   402   399   492  1199  1996
-  1990  1198   493   401   398   490  1197  1991
-  2006  2000   818   500   497   812  1990  2004
-  2013  2007  1215   820   817  1208  1998  2011
-  2019  2014  2003  1220  1214  1996  2009  2021
---- CH4 ---
-  3050  3044  3061  3072  3038  3040  3055  3066
-  3041  3033  3052  3060  3029  3035  3049  3058
-   ...   (8 rows total)
---- CH5 ---
-     0     0     0     0     0     0     0     0
-     0     0  3810  3805     0     0     0     0
-     0     0  3798  3792     0     0     0     0
-     0     0     0     0     0     0     0     0
-     0     0     0     0     0     0     0     0
-     0     0     0     0     0     0     0     0
-     0     0     0     0     0     0     0     0
-     0     0     0     0     0     0     0     0
-```
+### `FRAME` payload
 
-Each value is a right-aligned integer (millimetres) in a fixed-width column, so columns line up and are whitespace-separated. Only channels with a connected, ranging sensor appear.
+1554 bytes: an 18-byte header followed by eight fixed-size sensor blocks.
 
-### Reading it directly
+| Offset | Size | Field |
+|--------|------|-------|
+| 0 | u32 | `seq` |
+| 4 | u32 | `timestamp_ms` |
+| 8 | u8 | `sensor_valid` — bit *n* = channel *n* has data this frame |
+| 9 | u8 | `odom_valid` |
+| 10 | i16 | `roll_cdeg` |
+| 12 | i16 | `pitch_cdeg` |
+| 14 | i16 | `yaw_cdeg` |
+| 16 | u16 | reserved |
+| 18 | 8 × 192 | per-sensor block |
 
-Any serial terminal or a few lines of code will do. No special tooling:
+Each sensor block is **64 little-endian u16 ranges in mm**, then **64 status
+bytes**. Channels with no data are sent as zeroes so the payload stays
+fixed-size and a host can index it without parsing.
+
+!!! note "Only status 5 and 9 are real measurements"
+    Every other status is a no-return. Treat those zones as **no data** — never
+    as "obstacle at 0 mm". `FRAME` deliberately carries the *unmasked* cloud so
+    the configurator can show you what a mask would discard; everything
+    downstream of this link (the planner, the MAVLink output) sees the masked
+    cloud.
+
+## Reading it
+
+The supported tools live in the firmware repo:
 
 ```bash
-# any serial terminal, 921600-8N1, e.g.
-screen /dev/tty.usbserial-XXXX 921600
-#   or:  minicom -D /dev/ttyUSB0 -b 921600
+# stream the raw 8×(8×8) matrices — handles the keepalive for you
+python3 tools/tof8-stream.py                        # live grids
+python3 tools/tof8-stream.py --format jsonl         # one JSON object per frame
+python3 tools/tof8-stream.py --format csv -o cloud.csv
+
+# link health / which channels are ranging
+python3 tools/tof8-poll.py
 ```
 
-To turn the grids into 3-D points or obstacle data, see
-[Integration](05-integration.md).
+Both are standard-library only (no `pyserial`) and run on Python 3.6, so they
+work on a stock VOXL2 image.
 
-## Measurement validity
+!!! warning "One process owns the port"
+    A serial port has one owner. If the configurator tab, `screen`, or
+    `mavlink-router` holds `J5`, these tools cannot. On a VOXL2, `/dev/ttyHS1` is
+    already owned by PX4's `mavlink` instance — two readers on one tty do not each
+    get a copy, they race and both get a corrupted subset. `tof8-stream.py` warns
+    when another process already holds the device.
 
-The board emits **`0` for any zone that is not a real measurement** (no or low
-signal, out of range, etc.). Treat `0` as **"no return"**, never as "obstacle at
-0 mm". All non-zero values are valid distances in millimetres.
+## Graphical configurator
+
+<https://tools.ascendengineer.com> — a browser tool (Chrome, via Web Serial) that
+draws the live cloud in 3D and lets you paint and save the zone mask. It speaks
+exactly the protocol above and keeps the gate open with a ~1 Hz keepalive.
+
+Web Serial requires a **secure context**, so the tool must be loaded over HTTPS.

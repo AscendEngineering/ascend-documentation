@@ -1,68 +1,168 @@
-# Bring-up & setup guide
+# Bring-up & Setup Guide
 
-End-to-end procedure to go from boards in a box to a working obstacle sensor on your host. The board ships **pre-flashed by Ascend** with your chosen [firmware variant](04-firmware.md). There is nothing to build or flash.
+Boards in a box → a working obstacle sensor on your vehicle. Boards ship
+**pre-flashed** with your chosen [firmware variant](04-firmware.md); the build
+and flash steps here are only needed if you are changing it.
 
 ## 0. What you need
 
-- Ascend main board + up to 8 TOF sub-boards.
-- 8× 5-pin sensor cables (main-board sensor ports to TOF sub-boards).
-- A DC supply on `J1`, **5 V up to a 6S LiPo** (a regulated 5 V rail or the vehicle battery), **or** a USB-C cable (see [Power](02-power.md)).
-- A USB-UART adapter (921 600-capable) for the bench check, wired to `J7`, *default (sensor-stream) firmware only*. Its 5 V/VCC pin can also **power the board** through `J7` pin 1, so an adapter alone is often enough for bench work.
-- For flight integration, **any host with a UART** (flight controller or onboard computer). This guide uses a VOXL2 as the worked example. See [Integration (any host)](05-integration.md) for other platforms.
+- Ascend-8tof v2 carrier board + 8 TOF sub-boards.
+- A **regulated 5 V** supply for `J5` pin 1 — **not** a flight battery, see
+  [Power](02-power.md).
+- A 921 600-capable **USB-UART adapter** for bench work. Its 5 V/VCC can power
+  the board through `J5` pin 1, so one 4-wire lead does power and data.
+- An **ST-Link** on `J6` only if you need to reflash.
+- Chrome, for the [configurator](https://tools.ascendengineer.com).
 
-## 1. Assemble & connect
+## 1. Assemble
 
-1. Plug each TOF sub-board into a main-board sensor port with a 5-pin cable. Note the **channel ↔ port map**. It determines each sensor's bearing in software:
+Plug each sub-board into its sensor port. The port fixes the channel, and the
+channel fixes the bearing:
 
-   | Channel | Port | Channel | Port |
-   |---------|------|---------|------|
-   | 0 | J6 | 4 | J12 |
-   | 1 | J5 | 5 | J13 |
-   | 2 | J4 | 6 | J10 |
-   | 3 | J3 | 7 | J11 |
+| Channel | Port | Direction | Channel | Port | Direction |
+|---------|------|-----------|---------|------|-----------|
+| **CH7** | **`J8`** | **FRONT / nose** | CH3 | `J1` | back |
+| CH0 | `J4` | front-right | CH4 | `J9` | back-left |
+| CH1 | `J3` | right | CH5 | `J10` | left |
+| CH2 | `J2` | back-right | CH6 | `J7` | front-left |
 
-2. Seat every cable fully before powering. See the connector pinouts in [Hardware](01-hardware.md#sensor-connector-8-5-pin).
+Seat every connector fully before powering. Mount the unit with the **tip of the
+"A" facing the vehicle nose** — that is CH7.
 
-## 2. Power & bench-verify
+## 2. Power and verify
 
-*(Default sensor-stream firmware. Skip to step 3 if your board runs the ACO firmware, which talks to a flight controller rather than a terminal.)*
+1. Wire the adapter to `J5`: **board TX (pin 3) → adapter RX**, **adapter TX →
+   board RX (pin 2)**, GND↔GND, and 5 V to pin 1 if powering this way.
 
-1. Connect the USB-UART adapter to `J7` (board **TX → adapter RX**, GND↔GND), host set to **921 600-8N1**.
-2. Power the board (`J1`, 5 V to 6S, USB-C, or the adapter's 5 V on `J7` pin 1).
-3. Open the port in any serial terminal:
-   ```bash
-   screen /dev/tty.usbserial-XXXX 921600     # or minicom -D /dev/ttyUSB0 -b 921600
-   ```
-4. You should see repeating `--- CHn ---` blocks, each followed by an **8×8 grid** of millimetre distances. One block per connected sensor, updating continuously.
+    Both directions must be connected. The point cloud is gated on the board
+    hearing from a host (see
+    [Communications](03-comms-protocol.md#why-a-passive-listener-sees-only-mavlink)),
+    so TX-only wiring will never show you a cloud.
+
+2. Open the [configurator](https://tools.ascendengineer.com) in Chrome and
+   connect, **or** run:
+
+    ```bash
+    python3 tools/tof8-stream.py          # live 8×8 grids
+    python3 tools/tof8-poll.py            # link health, which channels range
+    ```
+
+3. Wave a hand ~30 cm from the nose sensor. **CH7**'s grid should drop to ~300 mm.
+   If a different channel lights up, the unit is not mounted nose-forward.
 
 **Sanity checks**
-- The onboard LED is a **power-good indicator**. It lights when the board is powered and its rails are up. It does **not** indicate data, sensor, or collision status (there is no firmware-driven status LED).
-- Wave your hand ~30 cm in front of one sensor. That channel's grid should drop to ~300 mm values. `0` means no return or invalid, not "obstacle at 0".
-- A missing channel. Check that sensor's cable and connector seating.
 
-## 3. Integrate with your host
+- The onboard LED is a **power-good indicator only** — rails are up. It says
+  nothing about sensors or data.
+- Zones with no return read as no data, **not** "obstacle at 0 mm".
+- A missing channel points at that sub-board or its connector — but read the
+  next section before concluding the mux is bad.
 
-Any host that can read the UART works. For a generic recipe (ArduPilot / PX4, ROS, bare MCU, …) see [Integration (any host)](05-integration.md). The steps below are the **VOXL2 worked example** (default firmware).
+## 3. Reflashing (optional)
 
-1. **Wire** the board's `J7` UART to a VOXL2 high-speed UART (e.g. `/dev/ttyHS1`) and power the board.
-2. **Install** the Ascend-provided service:
-   ```bash
-   dpkg -i voxl-ascend-8tof_<ver>_arm64.deb
-   systemctl enable --now voxl-ascend-8tof
-   ```
-3. **Configure** `/etc/modalai/voxl-ascend-8tof.conf`. Confirm `uart_path` matches the port you wired and `uart_baud = 921600` (see [Integration → Configuration](05-integration.md#configuration-etcmodalaivoxl-ascend-8tofconf)).
-4. **Wire into voxl-mapper**. Add the `tof_pipe_*` / `depth_pipe_*` slots and matching `extrinsics.conf` entries from [Integration](05-integration.md#voxl-mapper-wiring). Mount the board with **CH3 facing the nose** to match the extrinsics table.
-5. **Validate placement**. With voxl-mapper running, block one sensor at a time and confirm the obstacle shows up in the expected body direction in voxl-portal. Adjust that channel's mounting rotation if it lands wrong.
+```bash
+AVOID=cp BOARD=horiz3 ./tools/flash-board.sh
+```
 
-> **ACO firmware:** instead of the above, wire `J7` to a flight-controller TELEM port and enable the autopilot's obstacle-avoidance feature. See [ACO Firmware](04-firmware.md#aco-firmware-onboard-collision-avoidance-beta).
+Expect `sensors : 8/8` / `ALL 8 CHANNELS OK`. If it reports `0/8`, **power-cycle
+the board and re-check** before believing it:
+
+```bash
+./tools/read-sensors.sh     # reads a running board without resetting it
+```
+
+A reset does not clear the multiplexer's channel latch, so a bus jammed before
+flashing stays jammed through the flash.
+
+## A sensor that jams the bus
+
+This failure mode is worth understanding because **the error message points at
+the wrong part**.
+
+A VL53L8CX that holds SDA low drags down the whole shared bus the instant the
+multiplexer connects it. From the MCU's side that is indistinguishable from a
+dead multiplexer, so bring-up reports *every* channel as
+`mux never answered (check U2)` — including seven healthy ones.
+
+Firmware cannot recover from it. Clearing the TCA9548A's channel latch requires
+a bus transaction, and the bus is exactly what is jammed; `U2`'s `RESET` is only
+pulled up by `R6`, not driven by a GPIO. **Only a power cycle clears it.**
+
+### Locating the bad sensor
+
+```bash
+# 1. ascending walk
+make BOARD=horiz3 AVOID=cp DIAG=1 && DIAG=1 ./tools/flash-board.sh
+#    POWER-CYCLE the board, then:
+DIAG=1 ./tools/read-diag.sh
+
+# 2. descending walk
+make BOARD=horiz3 AVOID=cp DIAG=1 DIAGDIR=down && DIAG=1 DIAGDIR=down ./tools/flash-board.sh
+#    POWER-CYCLE again, then:
+DIAGDIR=down ./tools/read-diag.sh
+```
+
+The walk samples SCL/SDA **before anything drives them**, then enables one
+channel at a time:
+
+```
+cold SCL   : HIGH (idle, healthy)
+cold SDA   : HIGH (idle, healthy)
+mux @ 0x70 : ACK
+first bad  : CH4
+
+  CH0 (J4) front-right   clean, sensor ACKed at 0x29
+  ...
+  CH4 (J9) back-left     SDA PULLED LOW  <-- this channel jams the bus
+```
+
+Reading the result:
+
+- **cold SDA LOW** — no sensor can be responsible; the multiplexer comes out of
+  reset with every channel disconnected. The fault is on the main segment: the
+  MCU pin, `R3`, `U2`'s upstream side, or a short.
+- **cold SDA HIGH** — the bus is fine at rest, and the walk names the culprit.
+
+!!! warning "Run the walk in both directions"
+    Once a channel jams the bus, every later `select` silently does nothing and
+    the multiplexer stays latched on the culprit — so channels *after* it are
+    **indeterminate, not bad**. The tool labels them as such. Only channels that
+    fail in both directions are genuinely bad.
+
+### Keeping the board usable
+
+```bash
+make BOARD=horiz3 AVOID=cp EXCLUDE=4 && EXCLUDE=4 ./tools/flash-board.sh
+```
+
+The excluded channel is never selected, so the remaining seven work normally.
+This is a stopgap — replace the sensor when you can.
+
+## Other failure signatures
+
+| Symptom | Meaning |
+|---------|---------|
+| `mux never answered` on **all 8** | Usually one sensor jamming the bus, not a dead `U2`. Run the walk above. |
+| `firmware download failed` on one channel | Sensor ACKs at `0x29` and passes `is_alive()` but cannot take the ~85 KB firmware load. Points at the part or a marginal joint, not the bus. Swap that sensor with a known-good one to confirm. |
+| `sensor did not answer` on one channel | Nothing on that connector — check the sub-board and seating. |
+| `start_ranging failed` | Usually supply current — check the 5 V rail under load. |
+
+A quick way to separate a bad sensor from a bad board position: **swap the
+suspect sub-board with a known-good one.** If the fault follows the part, replace
+it; if it stays on the connector, it is board-side.
+
+## 4. Integrate
+
+See [Integration](05-integration.md) for the PX4 collision-prevention path
+(`AVOID=cp`, the default) and the VOXL2 worked example.
 
 ## Troubleshooting quick-reference
 
 | Symptom | Likely cause / fix |
 |---------|--------------------|
-| No UART text at all | Wrong baud. Use **921 600-8N1**. Confirm board TX → adapter RX (not TX→TX). |
-| Garbled text | Baud mismatch. Set 921 600. |
-| A channel never appears | Bad or loose sensor cable or connector. |
-| `invalid metadata, magic number=…` in voxl-mapper | `chN_format` does not match the slot type (tof2 → tof_pipe, point_cloud → depth_pipe). |
-| Obstacle appears in wrong direction | Wrong per-channel mounting rotation, or board not mounted CH3-forward. |
-| Rear/side sensors ignored | Using an old single-merged-cloud config. Use per-pipe publishing. |
+| MAVLink visible, no point cloud | Expected. The cloud is gated — you must send a keepalive. Use `tof8-stream.py` or the configurator. |
+| Nothing at all on the UART | Baud (**921 600-8N1**), or board TX → adapter RX reversed. |
+| Cannot open the port | Something else owns it — configurator tab, `screen`, or `mavlink-router`. On a VOXL2, PX4's `mavlink` owns `/dev/ttyHS1`. |
+| Configurator will not connect | Web Serial needs HTTPS and Chrome. |
+| `0/8` right after flashing | Power-cycle and re-check with `read-sensors.sh` — a reset does not clear the mux latch. |
+| Obstacle appears in the wrong direction | Unit not mounted nose-forward. On v2 the nose is **CH7 (`J8`)**, not CH3. |

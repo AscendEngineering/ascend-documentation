@@ -43,7 +43,7 @@ theme:
 # sections (each its own folder under docs/) as the docs grow.
 nav:
   - Home: index.md
-  - Ascend 8tof:
+  - Ascend 8tof v2:
     - ascend-8tof/index.md
     - Hardware overview: ascend-8tof/01-hardware.md
     - Power & voltage ranges: ascend-8tof/02-power.md
@@ -51,6 +51,7 @@ nav:
     - STM32 firmware: ascend-8tof/04-firmware.md
     - Integration (any host): ascend-8tof/05-integration.md
     - Bring-up & setup: ascend-8tof/06-bringup-setup.md
+    - Obstacle avoidance (setpoint streaming): ascend-8tof/07-obstacle-avoidance.md
 
 markdown_extensions:
   - admonition                # nice callout boxes for the ⚠️ notes
