@@ -36,3 +36,5 @@ single UART.
 - **Mounting:** the tip of the **A** on the lid is the nose = **CH7 (`J8`)**.
 - **Configurator:** <https://tools.ascendengineer.com> — live 3D cloud and zone
   masking in Chrome.
+
+*Integration questions?* [:material-email: Contact Ascend Engineering](mailto:eng@ascendengineer.com){ .pill }

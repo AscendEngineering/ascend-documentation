@@ -33,3 +33,4 @@ UAV companion computers, sensor systems, firmware, and integration guides.
 - Documentation is maintained in the
   [`ascend-documentation`](https://github.com/AscendEngineering/ascend-documentation)
   repository; pushes to `main` auto-deploy to this site.
+- Questions or integration help? [:material-email: Contact Ascend Engineering](mailto:eng@ascendengineer.com){ .pill }
