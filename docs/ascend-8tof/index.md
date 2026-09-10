@@ -16,7 +16,7 @@ single UART.
 
 - [Firmware and installer](08-install-firmware.md) — 10 Hz / 10 ms bench candidate;
   read the [validation status](09-firmware-release-notes.md#validation-status).
-- [Case and assembly STEP/STL files](10-case-files.md).
+- [Case and assembly STEP files](10-case-files.md).
 
 ## Documentation map
 
@@ -31,7 +31,7 @@ single UART.
 | 07 | [Obstacle Avoidance (onboard VFH)](07-obstacle-avoidance.md) | The alternative `AVOID=vfh` path, needing the Ascend PX4 fork |
 | 08 | [Install Firmware](08-install-firmware.md) | Prebuilt download, ST-Link setup, installer, and rollback |
 | 09 | [Firmware Release Notes](09-firmware-release-notes.md) | 10 Hz / 10 ms candidate, measurement behavior, validation status |
-| 10 | [Case & Assembly Downloads](10-case-files.md) | Complete assembly STEP and STL exports |
+| 10 | [Case & Assembly Downloads](10-case-files.md) | Complete assembly and electronics STEP exports |
 
 ## Key facts at a glance
 

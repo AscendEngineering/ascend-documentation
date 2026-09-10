@@ -12,7 +12,7 @@ the Markdown in [`docs/`](docs/). Pushes to `main` auto-deploy via GitHub Pages.
   obstacle-sensing system (up to 8× VL53L8CX sensors on an STM32H5 carrier board):
   hardware overview, power, the UART output protocol, firmware variants, and
   integration guides (with a VOXL2 worked example), a versioned firmware/installer
-  download, and case/assembly STEP and STL files.
+  download, and complete-assembly and electronics STEP files.
 
 More products will be added as sibling sections under `docs/`.
 

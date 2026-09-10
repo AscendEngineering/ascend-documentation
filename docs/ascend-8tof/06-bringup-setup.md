@@ -16,7 +16,7 @@ and flash steps here are only needed if you are changing it.
 
 ## 1. Assemble
 
-[Case and assembly STEP/STL downloads](10-case-files.md) are available for CAD
+[Case and assembly STEP downloads](10-case-files.md) are available for CAD
 reference and enclosure fit checks.
 
 Plug each sub-board into its sensor port. The port fixes the channel, and the

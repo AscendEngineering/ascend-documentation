@@ -154,7 +154,7 @@ pulled up by `R2`/`R3`). Only one channel is connected at a time.
 
 ## Mechanical / mounting
 
-[Download the complete assembly STEP and STL files](10-case-files.md) for
+[Download the complete assembly and electronics STEP files](10-case-files.md) for
 CAD reference, enclosure inspection, and mounting fit checks.
 
 - Mount the unit flat, with the **tip of the "A" on the case lid facing the
