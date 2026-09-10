@@ -16,6 +16,9 @@ and flash steps here are only needed if you are changing it.
 
 ## 1. Assemble
 
+[Case and assembly STEP/STL downloads](10-case-files.md) are available for CAD
+reference and enclosure fit checks.
+
 Plug each sub-board into its sensor port. The port fixes the channel, and the
 channel fixes the bearing:
 
@@ -59,6 +62,11 @@ Seat every connector fully before powering. Mount the unit with the **tip of the
   next section before concluding the mux is bad.
 
 ## 3. Reflashing (optional)
+
+To use the prebuilt 10 Hz / 10 ms bench candidate, follow
+[Install Firmware](08-install-firmware.md). That package includes its own
+installer; its hardware verification is still pending. The source-repository
+workflow below applies when building a different firmware version yourself.
 
 ```bash
 AVOID=cp BOARD=horiz3 ./tools/flash-board.sh

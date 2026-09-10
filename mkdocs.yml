@@ -49,6 +49,9 @@ nav:
     - Power & Voltage Ranges: ascend-8tof/02-power.md
     - Communications & Protocols: ascend-8tof/03-comms-protocol.md
     - STM32 Firmware: ascend-8tof/04-firmware.md
+    - Install Firmware: ascend-8tof/08-install-firmware.md
+    - Firmware Release Notes: ascend-8tof/09-firmware-release-notes.md
+    - Case & Assembly Downloads: ascend-8tof/10-case-files.md
     - Integration (any host): ascend-8tof/05-integration.md
     - Bring-up & Setup: ascend-8tof/06-bringup-setup.md
     - Obstacle Avoidance (Setpoint Streaming): ascend-8tof/07-obstacle-avoidance.md

@@ -1,0 +1,3 @@
+# Preserve supplied CAD exports byte-for-byte and omit generated geometry diffs.
+docs/ascend-8tof/downloads/case/*.step binary
+docs/ascend-8tof/downloads/case/*.stl binary

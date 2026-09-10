@@ -14,8 +14,8 @@ on-board. You never supply sensor voltages yourself.
 |-----------|-------|
 | **Input voltage** | **5 V nominal** |
 | **Maximum** | **~5.5 V** — see the limit below |
-| Connector | `J5` pin 1 (JST GH 1.25 mm, 4-pin) — [which pin, in a photo](01-hardware.md#connectors--pinouts) |
-| Typical current | well under **500 mA** in steady ranging |
+| Connector | `J5` pin 1 (JST GH 1.25 mm, 4-pin) — [which pin, in a photo](01-hardware.md#connectors-pinouts) |
+| Ranging current | Profile and load dependent; measure at the regulated 5 V input |
 | Peak current | brief inrush at power-on as all eight sensors initialise |
 | Protection | **reverse polarity only** (`D2`, SS14 Schottky in series) |
 
@@ -60,3 +60,25 @@ is all the integration needs. See [Bring-up & Setup](06-bringup-setup.md).
   distributed through the eight sensor connectors.
 - `J6` pin 6 is **+3V3**. It is there so a debug probe can sense target voltage —
   do not use it to power the board.
+
+## Choosing a ranging profile
+
+The [10 Hz / 10 ms candidate](09-firmware-release-notes.md) collects more light
+per measurement than the earlier 15 Hz / 5 ms experiment, at a longer frame
+interval. An 8×8 frame uses four sub-integrations:
+
+| Profile | Exposure per frame | Calculated exposure duty |
+|---------|-------------------:|-------------------------:|
+| 15 Hz / 5 ms | 20 ms | 30% |
+| **10 Hz / 10 ms candidate** | **40 ms** | **40%** |
+| 15 Hz / 10 ms | 40 ms | 60% |
+
+Exposure duty is not total board power. Sensor processing, MCU activity, the
+UART stream, and losses in the input diode and 3.3 V LDO also contribute.
+Keep voltage, connected peripherals, and scene fixed when comparing input
+current/watts. Check reliable detections at known distances indoors and in
+daylight; dashboard frame rate alone does not establish range or accuracy.
+
+The candidate's power and range have not yet been measured. Shortening
+integration can save power but makes weak reflections harder to detect.
+[ST integration timing](https://www.st.com/content/st_com/en/technical-documents/UM3109.html).

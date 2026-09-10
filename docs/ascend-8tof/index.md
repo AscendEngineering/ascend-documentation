@@ -12,6 +12,12 @@ single UART.
                                      (on request)
 ```
 
+## Downloads
+
+- [Firmware and installer](08-install-firmware.md) — 10 Hz / 10 ms bench candidate;
+  read the [validation status](09-firmware-release-notes.md#validation-status).
+- [Case and assembly STEP/STL files](10-case-files.md).
+
 ## Documentation map
 
 | # | Document | Contents |
@@ -23,12 +29,16 @@ single UART.
 | 05 | [Integration](05-integration.md) | PX4 collision prevention + VOXL2 worked example |
 | 06 | [Bring-up & Setup](06-bringup-setup.md) | Assemble → power → verify → integrate → troubleshoot |
 | 07 | [Obstacle Avoidance (onboard VFH)](07-obstacle-avoidance.md) | The alternative `AVOID=vfh` path, needing the Ascend PX4 fork |
+| 08 | [Install Firmware](08-install-firmware.md) | Prebuilt download, ST-Link setup, installer, and rollback |
+| 09 | [Firmware Release Notes](09-firmware-release-notes.md) | 10 Hz / 10 ms candidate, measurement behavior, validation status |
+| 10 | [Case & Assembly Downloads](10-case-files.md) | Complete assembly STEP and STL exports |
 
 ## Key facts at a glance
 
-- **Sensors:** 8× VL53L8CX, each an **8×8 zone grid at 15 Hz**, forming a 360° ring.
-- **Reliable range:** ~4 m (8×8 mode); ~45° field of view per axis.
-- **Power:** **5 V only** on `J5` pin 1, < 500 mA typical — see [Power](02-power.md).
+- **Sensors:** 8× VL53L8CX, each an **8×8 zone grid**, configurable up to **15 Hz**, forming a 360° ring.
+- **Range capability:** up to 4 m under suitable conditions; usable range depends
+  on lighting, target, and profile. ~45° field of view per axis.
+- **Power:** **5 V only** on `J5` pin 1; current depends on the ranging profile — see [Power](02-power.md).
 - **Host link:** one UART at **921 600 8N1** carrying MAVLink (always) and the
   point cloud (on request).
 - **Default output:** `OBSTACLE_DISTANCE` (#330) at 10 Hz, 72 bins × 5°, straight

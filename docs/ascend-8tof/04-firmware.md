@@ -1,11 +1,27 @@
 # Firmware
 
-One codebase, built for a board variant and an avoidance output. Source:
+## Prebuilt firmware and installer
+
+The [2026.09.10-10hz10ms download](08-install-firmware.md) is a **bench candidate**
+for the horizontal v3 carrier with eight v2 sensor boards. It uses 8×8 zones,
+10 Hz per sensor, 10 ms sub-integration, `AVOID=cp`, and 180° zone orientation.
+It also corrects weak/invalid readings being reported as clear space.
+
+The package includes its installer and offline instructions. No source checkout
+or compiler is needed. Read the [release notes](09-firmware-release-notes.md)
+and [pending hardware-validation status](09-firmware-release-notes.md#validation-status)
+before using it.
+
+## Source builds
+
+The firmware codebase is
 [`AscendEngineering/ascend-8tof`](https://github.com/AscendEngineering/ascend-8tof).
+Source builds select a board variant and an avoidance output. Use the versioned
+package for the candidate above; a checkout of the firmware repository is not
+proof that it contains every change in that prebuilt image.
 
 ```bash
-make BOARD=horiz3 AVOID=cp          # v2, PX4 CollisionPrevention (default)
-./tools/flash-board.sh              # flash over SWD and report which sensors came up
+make BOARD=horiz3 AVOID=cp          # source default profile; not the versioned candidate installer
 ```
 
 ## Board variant — `BOARD=`
@@ -47,7 +63,7 @@ These exist for bring-up and board repair. They are not flight builds.
 | `DIAG=1 DIAGDIR=down` | The same walk in descending channel order |
 | `EXCLUDE=4` | Permanently skip mux channel 4 (comma-separate for several) |
 
-`EXCLUDE=` is how you keep a board flying with a known-bad sensor: the excluded
+`EXCLUDE=` can isolate a known-bad sensor during diagnosis: the excluded
 channel is never selected, so one failed part cannot take the other seven down
 with it. See
 [Bring-up → A sensor that jams the bus](06-bringup-setup.md#a-sensor-that-jams-the-bus).
@@ -57,6 +73,11 @@ Each combination builds into its own directory (`build/horiz3-cp`,
 image.
 
 ## Flashing
+
+For the downloadable candidate, follow [Install Firmware](08-install-firmware.md).
+It checks package integrity, backs up flash, verifies the image and sensor
+profile, and checks saved masks. The commands below are the firmware
+repository's older source-build workflow, not the packaged installer.
 
 v2 has no USB and no bootloader button — **firmware goes on over SWD** via `J6`
 with an ST-Link.
@@ -85,15 +106,25 @@ result    : ALL 8 CHANNELS OK
     it and re-check with `./tools/read-sensors.sh`, which reads a running board
     without resetting it.
 
-## What the firmware does
+## Ranging and measurement behavior
 
-- Reads all 8 sensors through the mux at **15 Hz** each.
-- Applies the persistent **zone mask** before anything downstream sees the cloud.
-- Emits MAVLink per the `AVOID=` variant, and the raw cloud when a host asks.
-- **Self-heals:** if every sensor fails bring-up it retries every ~2 s (the 5 V
-  rail can sag during the 8-sensor inrush and fail a first attempt); a single
-  channel that drops at runtime is retried round-robin, up to 5 attempts, and is
-  skipped while avoidance is actively manoeuvring.
+- The sensors support up to **15 Hz** at 8×8; older builds use that rate. The
+  downloadable candidate explicitly selects **10 Hz / 10 ms**.
+- The persistent zone mask applies to avoidance processing. The browser receives
+  the raw cloud so users can see and edit the returns being excluded.
+- `AVOID=cp` sends `OBSTACLE_DISTANCE` at 10 Hz, independently of the sensor
+  rate. A faster browser packet counter is not a faster sensor measurement rate.
+- The candidate reports weak, missing, masked, expired, and unmeasured directions
+  as **unknown**. It retains close valid obstacles instead of discarding all
+  measurements below 50 cm, and expires cached samples after 200 ms.
+- Initialization retries and per-channel recovery exist in the source. The
+  candidate reapplies its selected profile during recovery; physical recovery
+  fault injection remains unverified. A stuck I²C bus can still require a
+  power cycle or hardware repair.
+
+See [release notes](09-firmware-release-notes.md) for the exact changes and
+validation limits. These descriptions do not imply every older board already
+has the candidate installed.
 
 ## Persistent zone mask
 
