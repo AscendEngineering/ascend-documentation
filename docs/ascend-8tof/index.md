@@ -11,6 +11,8 @@ The system uses a **horizontal v3 STM32H563RGT6 carrier with eight v2 sensor
 boards**. Power it with **regulated 5 V through J5** and use an FTDI adapter for
 the browser connection.
 
+**Current support is limited to collision prevention and raw ToF data.**
+
 ## Applications
 
 <table data-view="cards"><thead><tr><th align="center"></th></tr></thead><tbody><tr><td align="center"><h4>Indoor &#x26; GPS-denied</h4><p>Inspections and flight inside structures where satellites never reach.</p></td></tr><tr><td align="center"><h4>Tunnels &#x26; confined spaces</h4><p>Tight, walled environments where wall clearance matters most.</p></td></tr><tr><td align="center"><h4>Low-light &#x26; night ops</h4><p>No light needed — the sensors carry their own infrared.</p></td></tr><tr><td align="center"><h4>Close-proximity work</h4><p>Flying near people, equipment, and infrastructure with a safety margin.</p></td></tr><tr><td align="center"><h4>Warehouse &#x26; stockpile</h4><p>Autonomous scans through racking and around large volumes.</p></td></tr><tr><td align="center"><h4>Research &#x26; swarm</h4><p>A clean data feed for perception, mapping, and multi-drone work.</p></td></tr></tbody></table>
@@ -19,10 +21,9 @@ the browser connection.
 
 ![Illustration of the Ascend 8TOF 512-zone point cloud](assets/pointcloud-demo.gif){ width="800" }
 
-The animation illustrates the 512-zone layout using a 15 Hz profile. The
-[current downloadable candidate](09-firmware-release-notes.md) selects **10 Hz
-with 10 ms sub-integration**. Use the [setup guide](06-bringup-setup.md) to
-connect your board and inspect its live measurements.
+The animation illustrates the 512-zone layout. Use the
+[setup guide](06-bringup-setup.md) to connect your board and inspect its live
+measurements.
 
 ## Start here
 
@@ -52,16 +53,24 @@ See [Power](02-power.md) before connecting a supply. The [profile comparison](02
 explains exposure timing; range and total board power for the candidate remain
 unmeasured.
 
-## Flight demonstration
+## Experimental obstacle-avoidance demonstration
 
-Watch the obstacle-avoidance demonstration below. For configuration details,
-see the [setpoint-streaming approach](07-obstacle-avoidance.md), which requires
-the Ascend PX4 fork. The downloadable firmware's
-[validation status](09-firmware-release-notes.md#validation-status) is recorded
-separately from this demonstration.
+!!! danger "EXPERIMENTAL SOFTWARE — NOT CURRENTLY OFFERED ON THE 8TOF BOARD"
+    **The video below demonstrates experimental obstacle-avoidance software
+    that is in active development. This software is not currently offered on
+    the 8TOF board.**
+
+    **We currently support collision prevention and raw ToF data only.**
+    The obstacle-avoidance behavior shown in this video is a development
+    demonstration, not a currently supported product feature.
 
 <div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;">
-  <iframe src="https://www.loom.com/embed/0985aae7b1264882adabbc66015feb99" title="Ascend 8TOF flight demonstration" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen loading="lazy"></iframe>
+  <iframe src="https://www.loom.com/embed/0985aae7b1264882adabbc66015feb99" title="Ascend 8TOF experimental obstacle-avoidance demonstration" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen loading="lazy"></iframe>
 </div>
 
-[Watch the flight demonstration on Loom](https://www.loom.com/share/0985aae7b1264882adabbc66015feb99).
+[Watch the experimental demonstration on Loom](https://www.loom.com/share/0985aae7b1264882adabbc66015feb99).
+
+For development background, see the
+[experimental setpoint-streaming approach](07-obstacle-avoidance.md). The
+downloadable firmware's [validation status](09-firmware-release-notes.md#validation-status)
+is recorded separately from this demonstration.

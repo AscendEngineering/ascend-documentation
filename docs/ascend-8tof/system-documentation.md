@@ -30,7 +30,7 @@ single UART.
 | 04 | [Firmware](04-firmware.md) | Build variants, flashing, diagnostic builds |
 | 05 | [Integration](05-integration.md) | PX4 collision prevention + VOXL2 worked example |
 | 06 | [Bring-up & Setup](06-bringup-setup.md) | Assemble → power → verify → integrate → troubleshoot |
-| 07 | [Obstacle Avoidance (onboard VFH)](07-obstacle-avoidance.md) | The alternative `AVOID=vfh` path, needing the Ascend PX4 fork |
+| 07 | [Experimental Obstacle Avoidance (onboard VFH)](07-obstacle-avoidance.md) | The `AVOID=vfh` development path; not currently offered on the 8TOF board |
 | 08 | [Install Firmware](08-install-firmware.md) | Prebuilt download, ST-Link setup, installer, and rollback |
 | 09 | [Firmware Release Notes](09-firmware-release-notes.md) | 10 Hz / 10 ms candidate, measurement behavior, validation status |
 | 10 | [Case & Assembly Downloads](10-case-files.md) | Complete assembly and electronics STEP exports |

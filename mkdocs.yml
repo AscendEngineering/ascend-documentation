@@ -55,7 +55,7 @@ nav:
     - Case & Assembly Downloads: ascend-8tof/10-case-files.md
     - Integration (any host): ascend-8tof/05-integration.md
     - Bring-up & Setup: ascend-8tof/06-bringup-setup.md
-    - Obstacle Avoidance (Setpoint Streaming): ascend-8tof/07-obstacle-avoidance.md
+    - Experimental Obstacle Avoidance: ascend-8tof/07-obstacle-avoidance.md
 
 markdown_extensions:
   - admonition                # nice callout boxes for the ⚠️ notes

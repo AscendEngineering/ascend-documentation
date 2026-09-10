@@ -38,20 +38,24 @@ single-UART configuration: `J5` carries MAVLink *and* the gated point cloud.
 
 This selects what goes on the MAVLink wire. The point-cloud link is unaffected.
 
+**Current support is limited to collision prevention (`AVOID=cp`) and raw ToF
+data.** The `vfh` obstacle-avoidance path is experimental software in active
+development and is not currently offered on the 8TOF board.
+
 | Value | Emits | Who avoids | Requires |
 |-------|-------|-----------|----------|
 | **`cp`** (default) | `OBSTACLE_DISTANCE` (#330) at 10 Hz | **stock PX4** collision prevention | `CP_DIST > 0` on the FC |
-| `vfh` | `SET_POSITION_TARGET_LOCAL_NED` (#84) | the **board**, running VFH+ | the Ascend PX4 fork |
+| `vfh` (experimental) | `SET_POSITION_TARGET_LOCAL_NED` (#84) | the **board**, running VFH+ | the Ascend PX4 fork |
 | `both` | both | — | bench comparison only |
 
 !!! warning "`AVOID=both` is not a flight configuration"
     On a fork that honours #84, the two controllers fight over the same axis.
     Use it to compare behaviour on the bench, never on a vehicle.
 
-`AVOID=cp` is the one to use unless you are specifically working on the fork —
-it needs no custom PX4. See
-[Obstacle Avoidance](07-obstacle-avoidance.md) for the `vfh` path and
-[Integration](05-integration.md) for the `cp` path.
+Use `AVOID=cp` for supported collision prevention; it needs no custom PX4. See
+[Integration](05-integration.md) for setup. The
+[experimental obstacle-avoidance documentation](07-obstacle-avoidance.md)
+describes the `vfh` development path.
 
 ## Diagnostic and repair builds
 

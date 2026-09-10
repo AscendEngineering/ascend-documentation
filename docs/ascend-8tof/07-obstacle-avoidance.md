@@ -1,13 +1,14 @@
-# Obstacle Avoidance — Onboard VFH + PX4 Setpoint Fusion
+# Experimental Obstacle Avoidance — Onboard VFH + PX4 Setpoint Fusion
 
-!!! warning "This is the `AVOID=vfh` path — not the default"
-    The **default v2 firmware is `AVOID=cp`**, which emits `OBSTACLE_DISTANCE`
-    into **stock PX4** and needs no custom autopilot. Start with
-    [Integration](05-integration.md).
+!!! danger "EXPERIMENTAL SOFTWARE — NOT CURRENTLY OFFERED ON THE 8TOF BOARD"
+    **The obstacle-avoidance software described on this page is in active
+    development and is not currently offered on the 8TOF board. We currently
+    support collision prevention and raw ToF data only.**
 
-    Everything on this page requires the **Ascend PX4 fork**. Use it only if you
-    need avoidance in **Mission mode**, which stock collision prevention does not
-    provide.
+    This page documents the experimental `AVOID=vfh` development path, which
+    requires the **Ascend PX4 fork**. For supported collision prevention, the
+    default `AVOID=cp` firmware emits `OBSTACLE_DISTANCE` into **stock PX4** and
+    needs no custom autopilot. Start with [Integration](05-integration.md).
 
 This page explains an alternative avoidance approach for the Ascend-8tof: the board runs
 the avoidance planner **on-board**, computes the *best evasive motion itself*, and
