@@ -44,7 +44,8 @@ theme:
 nav:
   - Home: index.md
   - Ascend 8tof v2:
-    - ascend-8tof/index.md
+    - Overview: ascend-8tof/index.md
+    - System Documentation: ascend-8tof/system-documentation.md
     - Hardware Overview: ascend-8tof/01-hardware.md
     - Power & Voltage Ranges: ascend-8tof/02-power.md
     - Communications & Protocols: ascend-8tof/03-comms-protocol.md

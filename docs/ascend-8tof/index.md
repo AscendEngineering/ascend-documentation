@@ -1,48 +1,67 @@
-# Ascend-8tof v2 — System Documentation
+# Ascend-8tof v2 — Overview
 
-Documentation for the **Ascend-8tof v2** 360° time-of-flight obstacle-sensing
-system: a 30 × 30 mm carrier board (STM32H563) reading **8× VL53L8CX** 8×8
-multizone ToF sensors and speaking **MAVLink** to a flight controller over a
-single UART.
+![Ascend 8TOF v2 in its assembled case](assets/v2-assembled.jpg){ width="420" }
 
-```
- 8× VL53L8CX ──► carrier board ──┬── MAVLink OBSTACLE_DISTANCE ──► PX4 collision prevention
-  (8×8 grids)   (mux + STM32H5)  │   (always on)
-                                 └── 512-zone point cloud ──────► configurator / your host
-                                     (on request)
-```
+The Ascend-8tof v2 combines eight VL53L8CX sensors into a fixed, non-spinning
+ring of **512 ranging zones**. Connect it to a flight controller or companion
+computer over UART, or inspect the live 3D point cloud in Chrome at
+[tools.ascendengineer.com](https://tools.ascendengineer.com).
 
-## Downloads
+The system uses a **horizontal v3 STM32H563RGT6 carrier with eight v2 sensor
+boards**. Power it with **regulated 5 V through J5** and use an FTDI adapter for
+the browser connection.
 
-- [Firmware and installer](08-install-firmware.md) — 10 Hz / 10 ms bench candidate;
-  read the [validation status](09-firmware-release-notes.md#validation-status).
-- [Case and assembly STEP files](10-case-files.md).
+## Applications
 
-## Documentation map
+<table data-view="cards"><thead><tr><th align="center"></th></tr></thead><tbody><tr><td align="center"><h4>Indoor &#x26; GPS-denied</h4><p>Inspections and flight inside structures where satellites never reach.</p></td></tr><tr><td align="center"><h4>Tunnels &#x26; confined spaces</h4><p>Tight, walled environments where wall clearance matters most.</p></td></tr><tr><td align="center"><h4>Low-light &#x26; night ops</h4><p>No light needed — the sensors carry their own infrared.</p></td></tr><tr><td align="center"><h4>Close-proximity work</h4><p>Flying near people, equipment, and infrastructure with a safety margin.</p></td></tr><tr><td align="center"><h4>Warehouse &#x26; stockpile</h4><p>Autonomous scans through racking and around large volumes.</p></td></tr><tr><td align="center"><h4>Research &#x26; swarm</h4><p>A clean data feed for perception, mapping, and multi-drone work.</p></td></tr></tbody></table>
 
-| # | Document | Contents |
-|---|----------|----------|
-| 01 | [Hardware Overview](01-hardware.md) | Board, connectors & pinouts, channel map, mounting |
-| 02 | [Power](02-power.md) | Input voltage limits and how to power it |
-| 03 | [Communications](03-comms-protocol.md) | MAVLink output and the binary point-cloud link |
-| 04 | [Firmware](04-firmware.md) | Build variants, flashing, diagnostic builds |
-| 05 | [Integration](05-integration.md) | PX4 collision prevention + VOXL2 worked example |
-| 06 | [Bring-up & Setup](06-bringup-setup.md) | Assemble → power → verify → integrate → troubleshoot |
-| 07 | [Obstacle Avoidance (onboard VFH)](07-obstacle-avoidance.md) | The alternative `AVOID=vfh` path, needing the Ascend PX4 fork |
-| 08 | [Install Firmware](08-install-firmware.md) | Prebuilt download, ST-Link setup, installer, and rollback |
-| 09 | [Firmware Release Notes](09-firmware-release-notes.md) | 10 Hz / 10 ms candidate, measurement behavior, validation status |
-| 10 | [Case & Assembly Downloads](10-case-files.md) | Complete assembly and electronics STEP exports |
+## Point-cloud view
 
-## Key facts at a glance
+![Illustration of the Ascend 8TOF 512-zone point cloud](assets/pointcloud-demo.gif){ width="800" }
 
-- **Sensors:** 8× VL53L8CX, each an **8×8 zone grid**, configurable up to **15 Hz**, forming a 360° ring.
-- **Range capability:** up to 4 m under suitable conditions; usable range depends
-  on lighting, target, and profile. ~45° field of view per axis.
-- **Power:** **5 V only** on `J5` pin 1; current depends on the ranging profile — see [Power](02-power.md).
-- **Host link:** one UART at **921 600 8N1** carrying MAVLink (always) and the
-  point cloud (on request).
-- **Default output:** `OBSTACLE_DISTANCE` (#330) at 10 Hz, 72 bins × 5°, straight
-  into **stock PX4 collision prevention** — no custom autopilot build.
-- **Mounting:** the tip of the **A** on the lid is the nose = **CH7 (`J8`)**.
-- **Configurator:** <https://tools.ascendengineer.com> — live 3D cloud and zone
-  masking in Chrome.
+The animation illustrates the 512-zone layout using a 15 Hz profile. The
+[current downloadable candidate](09-firmware-release-notes.md) selects **10 Hz
+with 10 ms sub-integration**. Use the [setup guide](06-bringup-setup.md) to
+connect your board and inspect its live measurements.
+
+## Start here
+
+- [Bring-up and setup](06-bringup-setup.md): power, FTDI wiring, browser connection,
+  and a target check on each channel.
+- [System documentation](system-documentation.md): hardware, protocols, and integration.
+- [Firmware and installer](08-install-firmware.md): **10 Hz / 10 ms bench candidate**,
+  with [hardware verification pending](09-firmware-release-notes.md#validation-status).
+- [Complete assembly and electronics STEP files](10-case-files.md): CAD downloads
+  for the case and electronics, with checksums.
+
+## Specifications
+
+| Specification | Detail |
+| --- | --- |
+| Ranging zones | Eight 8×8 arrays; 512 zones total |
+| Sensor rate | Up to 15 Hz per sensor at 8×8; the candidate selects 10 Hz |
+| Coverage | Sensors arranged around a 360° ring; unmeasured directions remain unknown |
+| Range capability | Up to 4 m under suitable conditions; validate targets, lighting, and profile |
+| Resolution | 8×8 zones per sensor; approximately 45° field of view per axis |
+| Host connection | J5 UART, 921600 baud, 8N1; MAVLink plus an on-request binary point cloud |
+| Power | **Regulated 5 V through J5**; current depends on the profile and load |
+| Firmware installation | ST-Link through J6 |
+| Forward orientation | Tip of the A on the lid; CH7/J8 |
+
+See [Power](02-power.md) before connecting a supply. The [profile comparison](02-power.md#choosing-a-ranging-profile)
+explains exposure timing; range and total board power for the candidate remain
+unmeasured.
+
+## Flight demonstration
+
+Watch the obstacle-avoidance demonstration below. For configuration details,
+see the [setpoint-streaming approach](07-obstacle-avoidance.md), which requires
+the Ascend PX4 fork. The downloadable firmware's
+[validation status](09-firmware-release-notes.md#validation-status) is recorded
+separately from this demonstration.
+
+<div class="video-embed" style="position:relative;padding-bottom:56.25%;height:0;">
+  <iframe src="https://www.loom.com/embed/0985aae7b1264882adabbc66015feb99" title="Ascend 8TOF flight demonstration" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen loading="lazy"></iframe>
+</div>
+
+[Watch the flight demonstration on Loom](https://www.loom.com/share/0985aae7b1264882adabbc66015feb99).
