@@ -23,8 +23,8 @@ two board types:
 | Sensor | VL53L8CX multizone ToF |
 | Zones per sensor | **8 × 8** (64 zones) |
 | Sensors per board | **8** (360° coverage) |
-| Ranging rate | **15 Hz** per sensor |
-| Reliable range | **~4 m** (8×8 mode) |
+| Ranging rate | Up to **15 Hz** at 8×8; the [candidate](09-firmware-release-notes.md) uses **10 Hz** |
+| Range capability | **Up to 4 m** in suitable conditions; validate targets and lighting for the selected profile |
 | Per-sensor field of view | ~45° per axis |
 
 ## Connectors & pinouts
@@ -153,6 +153,9 @@ pulled up by `R2`/`R3`). Only one channel is connected at a time.
 | **Bare PCB weight** | **~9 g** |
 
 ## Mechanical / mounting
+
+[Download the complete assembly STEP and STL files](10-case-files.md) for
+CAD reference, enclosure inspection, and mounting fit checks.
 
 - Mount the unit flat, with the **tip of the "A" on the case lid facing the
   vehicle nose**. That puts **CH7 (`J8`) at 0°**, and the other seven follow

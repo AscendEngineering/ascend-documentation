@@ -81,15 +81,19 @@ alive and still do nothing.
 
 ### What "clear" and "unknown" mean
 
-The board fills all 72 bins every message:
+For the [10 Hz / 10 ms candidate](09-firmware-release-notes.md):
 
-- **`401` cm** — covered by a live, unmasked sensor and **clear**.
-- **`65535`** — **not covered**: sensor offline, zone masked, or outside every
-  field of view. PX4 treats unknown as blocking unless `CP_GO_NO_DATA` is set.
+- **`401` cm** is the MAVLink value for no obstacle within the advertised range.
+  The candidate does not infer it from a missing echo.
+- **`65535`** is unknown, including weak/no-target returns, masked zones,
+  expired samples, and unmeasured directions.
+- Other accepted values are measured obstacle distances. Valid close returns
+  are retained, including those below the older firmware's 50 cm cutoff.
 
-A bin is only marked clear when a sensor column actually covers it, so a failed
-sensor reads as *unknown* rather than *open space*. Expect a board with a dead
-channel to restrict motion in that direction — that is the intended behaviour.
+Unknown can cause PX4 Collision Prevention to restrict movement. Do not set
+`CP_GO_NO_DATA` merely to bypass missing measurements. Validate the installed
+firmware's behavior with real targets before using it for collision prevention.
+See [wire fields](03-comms-protocol.md#obstacle_distance-field-values).
 
 ## Reading the raw cloud on a host
 

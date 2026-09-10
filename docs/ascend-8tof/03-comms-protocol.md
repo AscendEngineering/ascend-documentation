@@ -50,28 +50,33 @@ back from the flight controller, and uses the attitude for tilt compensation.
 
 ### `OBSTACLE_DISTANCE` field values
 
-These are what PX4's collision prevention consumes; the values are chosen to
-satisfy its gates exactly.
+These values describe the [10 Hz / 10 ms candidate](09-firmware-release-notes.md).
+Older firmware can use different minimum-range and unknown-data behavior;
+confirm the installed version before relying on these semantics.
 
 | Field | Value |
 |-------|-------|
 | `frame` | `MAV_FRAME_BODY_FRD` (12) |
-| `sensor_type` | `MAV_DISTANCE_SENSOR_UNKNOWN` |
+| `sensor_type` | `MAV_DISTANCE_SENSOR_LASER` (0) |
 | `increment_f` | **5.0°** |
 | `angle_offset` | **2.5°** (bin centres, not edges) |
 | `distances[]` | **72 bins**, centimetres |
-| `min_distance` | **50 cm** |
+| `min_distance` | **2 cm** in the candidate (older builds used 50 cm) |
 | `max_distance` | **400 cm** |
 
 Two sentinel values matter:
 
-- **`401` (`max_distance + 1`)** — bin is covered by a sensor and is **clear**.
-- **`65535` (`UINT16_MAX`)** — bin is **not covered** (sensor offline, masked, or
-  outside any field of view). PX4 treats unknown as blocking unless `CP_GO_NO_DATA`
-  is set.
+- **`401` (`max_distance + 1`)** means no obstacle within the advertised range.
+  The candidate does **not** generate this from a missing echo or geometric
+  coverage alone.
+- **`65535` (`UINT16_MAX`)** means **unknown / not used**. The candidate uses it
+  for weak, missing, masked, expired, and unmeasured directions.
 
-A bin is only reported clear if a live, unmasked sensor column actually covers
-it. That distinction is what stops a dead sensor from being read as open space.
+An accepted measurement provides an obstacle distance, with the nearest return
+winning in each bin. Samples expire 200 ms after their successful polling pass.
+PX4 may restrict motion into unknown directions; do not enable `CP_GO_NO_DATA`
+merely to hide missing measurements. The 400 cm field is the configured maximum,
+not a guarantee of reliable 4 m detection under every lighting/target condition.
 
 ## Point-cloud link
 
