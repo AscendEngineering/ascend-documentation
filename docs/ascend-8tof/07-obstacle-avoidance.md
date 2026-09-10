@@ -139,7 +139,7 @@ enabled** (PX4 only processes `SET_POSITION_TARGET` with it on).
 
 ## How it's validated — a "digital twin"
 
-The exact firmware avoidance code is verified in **Gazebo** before it ever flies:
+The simulation workflow exercises the firmware avoidance code in **Gazebo**:
 
 - A simulated drone carries **8 modelled ToF sensors** (8×8, 45° FoV, 4 m).
 - A bridge process **runs the real firmware algorithm unchanged**, fed by the
@@ -147,9 +147,11 @@ The exact firmware avoidance code is verified in **Gazebo** before it ever flies
   fork — the same data path as the real vehicle. Only the I/O differs (sim topics
   instead of I²C, UDP instead of UART).
 
-Because the thing under test is the *actual* on-board code, what passes in sim is
-what runs on the vehicle. This is how the avoidance behavior is tuned and
-regression-checked.
+The bridge uses the on-board algorithm to tune and regression-check avoidance.
+Simulation results apply to the code and scenarios tested; they do not establish
+physical sensor range or validate a different firmware revision. See the
+[release validation status](09-firmware-release-notes.md#validation-status) for
+the downloadable 10 Hz / 10 ms candidate.
 
 ---
 
@@ -157,6 +159,8 @@ regression-checked.
 
 !!! warning "In active development"
     Setpoint-streaming avoidance and the PX4 fork are **in active development**.
-    Reactive/horizontal only; validated in simulation and early flight. The
-    default **sensor-stream firmware** remains the production path — talk to
-    Ascend about enabling this mode.
+    Reactive/horizontal only; earlier versions were exercised in simulation and
+    early flight. Start with the default **`AVOID=cp` integration** and read the
+    [candidate validation status](09-firmware-release-notes.md#validation-status)
+    before choosing a firmware version. Validate setpoint fusion separately on
+    the intended vehicle.

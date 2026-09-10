@@ -1,13 +1,13 @@
 # Case and assembly files
 
-Download the supplied v2 assembly files for enclosure fit checks, mounting,
-and CAD reference. Both exports are preserved as supplied; the documentation
-update does not change their geometry.
+Download the v2 complete-assembly and electronics STEP files for enclosure fit
+checks, mounting, and CAD reference. Both exports are preserved as supplied.
+The electronics STEP replaces the previously supplied assembly STL download.
 
 | Download | Format | Size | Intended use |
 |----------|--------|------|--------------|
-| [Complete assembly — STEP](downloads/case/tof8_v2_COMPLETE_assembly.step) | STEP / AP214 | 7.34 MiB | CAD import, assembly inspection, and selecting parts for mechanical work |
-| [Assembly mesh — STL](downloads/case/oa_pcb_tof8_v2_assembly.stl) | Binary STL | 4.06 MiB | Mesh inspection and fit-reference workflows |
+| [Complete assembly — STEP](downloads/case/tof8_v2_COMPLETE_assembly.step) | STEP / AP214 | 7.34 MiB | Inspect the complete assembly and select enclosure components |
+| [Electronics assembly — STEP](downloads/case/tof8_v2_electronics.step) | STEP / AP214 | 4.19 MiB | Inspect the electronics assembly and check enclosure clearances |
 | [File checksums](downloads/case/SHA256SUMS) | SHA-256 | — | Confirm downloads match the supplied exports |
 
 ![Assembled v2 case with the forward-facing A](assets/v2-assembled.jpg){ width="420" }
@@ -19,18 +19,16 @@ real target.
 
 ## Using the files
 
-- **STEP:** the file declares millimetres and contains multiple solids. Import
-  it as an assembly/reference model and select the enclosure components you
-  need. It is not a single flattened case part.
-- **STL:** the export contains 85,168 triangles. STL does not encode units;
-  check the import scale against the STEP model. Its bounding box is
-  approximately **36.194 × 36.194 × 11.875 model units** (millimetres if imported
-  at the intended millimetre scale).
-- These are **assembly exports**. Inspect and separate the required enclosure
-  pieces before preparing a print. The entire STL has not been validated as
-  one printable part, and no print orientation, supports, or material settings
-  are specified by this download.
+- Both STEP files declare **millimetres** and contain multiple solids. Import
+  them as assembly/reference models; check your CAD program's unit settings.
+- Use the complete-assembly export to inspect the case and select the enclosure
+  components you need. Use the electronics export to reference board and
+  component placement when checking clearances.
+- Select and export individual enclosure pieces for your slicer before preparing
+  a print. These downloads do not include verified print orientation, supports,
+  tolerances, or material settings.
 
-The STEP header/terminator, STL record count, finite mesh coordinates, and file
-checksums were checked. Those checks establish file integrity, not mechanical
-fit, mesh watertightness, or print readiness.
+Both STEP headers/terminators, unit declarations, and checksums were checked.
+These checks establish file integrity; mechanical fit and print readiness still
+require inspection and a physical fit check. The documentation update does not
+modify either file's geometry.
