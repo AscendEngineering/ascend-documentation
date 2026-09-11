@@ -50,7 +50,7 @@ back from the flight controller, and uses the attitude for tilt compensation.
 
 ### `OBSTACLE_DISTANCE` field values
 
-These values describe the [10 Hz / 10 ms candidate](09-firmware-release-notes.md).
+These values describe the [10 Hz / 10 ms release](09-firmware-release-notes.md).
 Older firmware can use different minimum-range and unknown-data behavior;
 confirm the installed version before relying on these semantics.
 
@@ -61,15 +61,15 @@ confirm the installed version before relying on these semantics.
 | `increment_f` | **5.0°** |
 | `angle_offset` | **2.5°** (bin centres, not edges) |
 | `distances[]` | **72 bins**, centimetres |
-| `min_distance` | **2 cm** in the candidate (older builds used 50 cm) |
+| `min_distance` | **2 cm** in the release (older builds used 50 cm) |
 | `max_distance` | **400 cm** |
 
 Two sentinel values matter:
 
 - **`401` (`max_distance + 1`)** means no obstacle within the advertised range.
-  The candidate does **not** generate this from a missing echo or geometric
+  The release does **not** generate this from a missing echo or geometric
   coverage alone.
-- **`65535` (`UINT16_MAX`)** means **unknown / not used**. The candidate uses it
+- **`65535` (`UINT16_MAX`)** means **unknown / not used**. The release uses it
   for weak, missing, masked, expired, and unmeasured directions.
 
 An accepted measurement provides an obstacle distance, with the nearest return
@@ -82,6 +82,24 @@ not a guarantee of reliable 4 m detection under every lighting/target condition.
 
 The binary protocol the browser configurator speaks, carrying the **raw,
 unmasked** 512-zone cloud plus the read/write path for the persistent zone mask.
+
+### Packet rate and freshness
+
+The `2026.09.11-10hz10ms-uart10` release sends approximately **10 cloud packets/s**
+while the MCU polls sensors at 20 Hz. Each packet includes the latest newly
+received reading for each channel collected since the preceding packet.
+The `sensor_valid` bitmap marks those channels; a clear bit means no new
+reading, not necessarily an offline sensor. Channel health comes from `INFO`.
+
+`timestamp_ms` and attitude describe the latest acquisition poll in the batch.
+The eight sensors range independently, so this is not a synchronized exposure.
+A fresh reading with invalid zone statuses replaces that channel's previous
+reading. Samples delayed by more than 200 ms are not marked fresh in this
+10 Hz profile. The packet layout and CRC are unchanged.
+
+The previous 2026-09-10 image sent a packet per poll, about 20 Hz, despite
+configuring each sensor for 10 Hz. The [release notes](09-firmware-release-notes.md#validation-status)
+record the measured UART rate and arrival jitter for the update.
 
 ### Framing
 
@@ -119,8 +137,8 @@ a keepalive.
 | Offset | Size | Field |
 |--------|------|-------|
 | 0 | u32 | `seq` |
-| 4 | u32 | `timestamp_ms` |
-| 8 | u8 | `sensor_valid` — bit *n* = channel *n* has data this frame |
+| 4 | u32 | `timestamp_ms` — latest acquisition poll in the batch |
+| 8 | u8 | `sensor_valid` — bit *n* = channel *n* has newly collected data in this packet |
 | 9 | u8 | `odom_valid` |
 | 10 | i16 | `roll_cdeg` |
 | 12 | i16 | `pitch_cdeg` |

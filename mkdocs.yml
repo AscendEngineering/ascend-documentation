@@ -44,7 +44,8 @@ theme:
 nav:
   - Home: index.md
   - Ascend 8tof v2:
-    - ascend-8tof/index.md
+    - Overview: ascend-8tof/index.md
+    - System Documentation: ascend-8tof/system-documentation.md
     - Hardware Overview: ascend-8tof/01-hardware.md
     - Power & Voltage Ranges: ascend-8tof/02-power.md
     - Communications & Protocols: ascend-8tof/03-comms-protocol.md
@@ -54,7 +55,7 @@ nav:
     - Case & Assembly Downloads: ascend-8tof/10-case-files.md
     - Integration (any host): ascend-8tof/05-integration.md
     - Bring-up & Setup: ascend-8tof/06-bringup-setup.md
-    - Obstacle Avoidance (Setpoint Streaming): ascend-8tof/07-obstacle-avoidance.md
+    - Experimental Obstacle Avoidance: ascend-8tof/07-obstacle-avoidance.md
 
 markdown_extensions:
   - admonition                # nice callout boxes for the ⚠️ notes

@@ -23,7 +23,7 @@ two board types:
 | Sensor | VL53L8CX multizone ToF |
 | Zones per sensor | **8 × 8** (64 zones) |
 | Sensors per board | **8** (360° coverage) |
-| Ranging rate | Up to **15 Hz** at 8×8; the [candidate](09-firmware-release-notes.md) uses **10 Hz** |
+| Ranging rate | Up to **15 Hz** at 8×8; the [release](09-firmware-release-notes.md) uses **10 Hz** |
 | Range capability | **Up to 4 m** in suitable conditions; validate targets and lighting for the selected profile |
 | Per-sensor field of view | ~45° per axis |
 

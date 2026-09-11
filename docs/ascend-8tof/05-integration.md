@@ -81,10 +81,10 @@ alive and still do nothing.
 
 ### What "clear" and "unknown" mean
 
-For the [10 Hz / 10 ms candidate](09-firmware-release-notes.md):
+For the [10 Hz / 10 ms release](09-firmware-release-notes.md):
 
 - **`401` cm** is the MAVLink value for no obstacle within the advertised range.
-  The candidate does not infer it from a missing echo.
+  The release does not infer it from a missing echo.
 - **`65535`** is unknown, including weak/no-target returns, masked zones,
   expired samples, and unmeasured directions.
 - Other accepted values are measured obstacle distances. Valid close returns

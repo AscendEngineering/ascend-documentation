@@ -1,6 +1,6 @@
 # 8TOF installer source
 
-These files are the installer source packaged in the 2026.09.10-10hz10ms
+These files are the installer source packaged in the 2026.09.11-10hz10ms-uart10
 firmware ZIP under `docs/ascend-8tof/downloads/firmware/`.
 Install from the complete extracted ZIP: these source files alone lack the
 firmware and its manifest. Public instructions are in

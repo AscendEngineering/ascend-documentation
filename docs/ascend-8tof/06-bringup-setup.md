@@ -63,9 +63,10 @@ Seat every connector fully before powering. Mount the unit with the **tip of the
 
 ## 3. Reflashing (optional)
 
-To use the prebuilt 10 Hz / 10 ms bench candidate, follow
+To use the prebuilt 10 Hz / 10 ms release with a 10 Hz UART cloud, follow
 [Install Firmware](08-install-firmware.md). That package includes its own
-installer; its hardware verification is still pending. The source-repository
+installer; installation and all-eight-sensor readback passed on two boards.
+The source-repository
 workflow below applies when building a different firmware version yourself.
 
 ```bash
