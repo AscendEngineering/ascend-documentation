@@ -2,14 +2,16 @@
 
 ## Prebuilt firmware and installer
 
-The [2026.09.10-10hz10ms download](08-install-firmware.md) is a **bench candidate**
+The [2026.09.11-10hz10ms-uart10 download](08-install-firmware.md) is a **bench
+release with installation verified on two boards**
 for the horizontal v3 carrier with eight v2 sensor boards. It uses 8×8 zones,
 10 Hz per sensor, 10 ms sub-integration, `AVOID=cp`, and 180° zone orientation.
-It also corrects weak/invalid readings being reported as clear space.
+The UART cloud now sends approximately 10 packets/s. Weak/invalid readings
+remain unknown rather than clear space.
 
 The package includes its installer and offline instructions. No source checkout
 or compiler is needed. Read the [release notes](09-firmware-release-notes.md)
-and [pending hardware-validation status](09-firmware-release-notes.md#validation-status)
+and [hardware-validation status](09-firmware-release-notes.md#validation-status)
 before using it.
 
 ## Source builds
@@ -17,11 +19,11 @@ before using it.
 The firmware codebase is
 [`AscendEngineering/ascend-8tof`](https://github.com/AscendEngineering/ascend-8tof).
 Source builds select a board variant and an avoidance output. Use the versioned
-package for the candidate above; a checkout of the firmware repository is not
+package for the release above; a checkout of the firmware repository is not
 proof that it contains every change in that prebuilt image.
 
 ```bash
-make BOARD=horiz3 AVOID=cp          # source default profile; not the versioned candidate installer
+make BOARD=horiz3 AVOID=cp ORIENT=180 RATE=10 INTEG=10
 ```
 
 ## Board variant — `BOARD=`
@@ -78,7 +80,7 @@ image.
 
 ## Flashing
 
-For the downloadable candidate, follow [Install Firmware](08-install-firmware.md).
+For the downloadable release, follow [Install Firmware](08-install-firmware.md).
 It checks package integrity, backs up flash, verifies the image and sensor
 profile, and checks saved masks. The commands below are the firmware
 repository's older source-build workflow, not the packaged installer.
@@ -113,22 +115,23 @@ result    : ALL 8 CHANNELS OK
 ## Ranging and measurement behavior
 
 - The sensors support up to **15 Hz** at 8×8; older builds use that rate. The
-  downloadable candidate explicitly selects **10 Hz / 10 ms**.
+  downloadable release explicitly selects **10 Hz / 10 ms**.
 - The persistent zone mask applies to avoidance processing. The browser receives
   the raw cloud so users can see and edit the returns being excluded.
-- `AVOID=cp` sends `OBSTACLE_DISTANCE` at 10 Hz, independently of the sensor
-  rate. A faster browser packet counter is not a faster sensor measurement rate.
-- The candidate reports weak, missing, masked, expired, and unmeasured directions
+- `AVOID=cp` sends `OBSTACLE_DISTANCE` at 10 Hz. The current UART cloud also
+  targets 10 packets/s while acquisition polls at 20 Hz; packet timing and
+  per-channel measurement freshness are separate.
+- The release reports weak, missing, masked, expired, and unmeasured directions
   as **unknown**. It retains close valid obstacles instead of discarding all
   measurements below 50 cm, and expires cached samples after 200 ms.
 - Initialization retries and per-channel recovery exist in the source. The
-  candidate reapplies its selected profile during recovery; physical recovery
+  release reapplies its selected profile during recovery; physical recovery
   fault injection remains unverified. A stuck I²C bus can still require a
   power cycle or hardware repair.
 
 See [release notes](09-firmware-release-notes.md) for the exact changes and
 validation limits. These descriptions do not imply every older board already
-has the candidate installed.
+has the release installed.
 
 ## Persistent zone mask
 

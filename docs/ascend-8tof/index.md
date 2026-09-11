@@ -30,8 +30,8 @@ measurements.
 - [Bring-up and setup](06-bringup-setup.md): power, FTDI wiring, browser connection,
   and a target check on each channel.
 - [System documentation](system-documentation.md): hardware, protocols, and integration.
-- [Firmware and installer](08-install-firmware.md): **10 Hz / 10 ms bench candidate**,
-  with [hardware verification pending](09-firmware-release-notes.md#validation-status).
+- [Firmware and installer](08-install-firmware.md): **10 Hz / 10 ms with a 10 Hz UART cloud**,
+  with [installation verified on two boards](09-firmware-release-notes.md#validation-status).
 - [Complete assembly and electronics STEP files](10-case-files.md): CAD downloads
   for the case and electronics, with checksums.
 
@@ -40,7 +40,8 @@ measurements.
 | Specification | Detail |
 | --- | --- |
 | Ranging zones | Eight 8×8 arrays; 512 zones total |
-| Sensor rate | Up to 15 Hz per sensor at 8×8; the candidate selects 10 Hz |
+| Sensor rate | Up to 15 Hz per sensor at 8×8; the current release selects 10 Hz |
+| Point-cloud packet rate | Approximately 10 Hz with the current firmware; 9.98 Hz measured on the bench |
 | Coverage | Sensors arranged around a 360° ring; unmeasured directions remain unknown |
 | Range capability | Up to 4 m under suitable conditions; validate targets, lighting, and profile |
 | Resolution | 8×8 zones per sensor; approximately 45° field of view per axis |
@@ -50,7 +51,7 @@ measurements.
 | Forward orientation | Tip of the A on the lid; CH7/J8 |
 
 See [Power](02-power.md) before connecting a supply. The [profile comparison](02-power.md#choosing-a-ranging-profile)
-explains exposure timing; range and total board power for the candidate remain
+explains exposure timing; range and total board power for this release remain
 unmeasured.
 
 ## Experimental obstacle-avoidance demonstration

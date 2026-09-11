@@ -41,6 +41,7 @@ copies them to the deployed site. Keep the ZIP checksum paired with its exact
 version. The reviewable installer source is in `tools/8tof-installer/` and must
 match the files inside the downloadable ZIP.
 
-The 10 Hz / 10 ms image is a bench candidate with hardware validation pending.
-Do not remove that status until the exact image has been checked on hardware.
+The current 10 Hz / 10 ms image with 10 Hz UART output passed installation and
+all-eight-sensor verification on two boards. One 30-second capture measured
+9.98 cloud packets/s. Range, power, and flight performance remain unverified.
 Per-board flash backups and local installation logs are not public assets.

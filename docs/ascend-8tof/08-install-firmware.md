@@ -9,8 +9,8 @@ controller. No firmware compiler or source checkout is required.
 
 | Package | Profile | Status |
 |---------|---------|--------|
-| [Firmware and installer ZIP](downloads/firmware/2026.09.10-10hz10ms/ascend-8tof-horizontal-v3-10hz10ms-2026-09-10.zip) | **8×8 · 10 Hz · 10 ms**, `AVOID=cp`, 180° zone orientation | **Bench candidate — hardware verification pending** |
-| [ZIP SHA-256 checksum](downloads/firmware/2026.09.10-10hz10ms/ascend-8tof-horizontal-v3-10hz10ms-2026-09-10.zip.sha256) | Verify the complete download | Version `2026.09.10-10hz10ms` |
+| [Firmware and installer ZIP](downloads/firmware/2026.09.11-10hz10ms-uart10/ascend-8tof-horizontal-v3-2026.09.11-uart10.zip) | **8×8 · 10 Hz · 10 ms**, 10 Hz UART cloud, `AVOID=cp`, 180° orientation | **Bench installation verified on two boards** |
+| [ZIP SHA-256 checksum](downloads/firmware/2026.09.11-10hz10ms-uart10/ascend-8tof-horizontal-v3-2026.09.11-uart10.zip.sha256) | Verify the complete download | Version `2026.09.11-10hz10ms-uart10` |
 
 Read the [release notes and validation status](09-firmware-release-notes.md)
 before installing. The ZIP contains the firmware, Python installer, launchers,
@@ -19,10 +19,10 @@ OpenOCD configuration, manifest, checksums, and offline instructions. Extract
 
 !!! note "Validation status"
     Firmware compilation, regression tests, and 15 installer tests passed.
-    The live installation attempt stopped before any write because no ST-Link
-    was connected. This exact release has not yet completed hardware readback;
-    range and input power are unmeasured. Windows/Linux hardware installation
-    also remains unverified.
+    Installation, all-eight-sensor configuration/startup, firmware readback,
+    and saved-mask preservation passed on two boards using macOS and ST OpenOCD.
+    A 30-second UART capture on one board measured **9.98 cloud packets/s**.
+    Range, input power, and Windows/Linux hardware installation remain unverified.
 
 ## Prerequisites
 
@@ -128,8 +128,13 @@ Open the [configurator](https://tools.ascendengineer.com) in Chrome, connect the
 FTDI adapter at **921600 baud**, and check all eight channels. Move an object
 in front of each sensor. The tip of the A marks the nose: **CH7/J8**.
 
-The dashboard's packet/frame rate may exceed 10 Hz because the MCU polls more
-frequently. It is not the rate of fresh measurements from each sensor.
+With this release, the dashboard should show approximately **10 Hz**. Each UART
+packet combines newly received channel readings from the MCU's faster 20 Hz
+polling loop. `sensor_valid` identifies channels with new data in that packet;
+it is separate from the online bitmap in `INFO`. The original 2026-09-10 image
+sent approximately 20 packets/s while its sensors still ranged at 10 Hz.
+Packet arrivals can have timing jitter, and not every packet must update every
+channel. See [the measured results](09-firmware-release-notes.md#validation-status).
 
 This release reports **unknown** for weak, missing, masked, expired, or
 unmeasured directions. PX4 may restrict motion into those directions. Do not

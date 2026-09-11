@@ -1,8 +1,8 @@
 # Firmware release notes
 
-## 2026.09.10-10hz10ms — bench candidate
+## 2026.09.11-10hz10ms-uart10 — bench installation verified
 
-[Download and install](08-install-firmware.md) this candidate for the horizontal
+[Download and install](08-install-firmware.md) this release for the horizontal
 v3 STM32H563RGT6 carrier with eight v2 VL53L8CX sensor boards.
 
 | Setting | Value |
@@ -14,6 +14,28 @@ v3 STM32H563RGT6 carrier with eight v2 VL53L8CX sensor boards.
 | Output | `AVOID=cp`: MAVLink `OBSTACLE_DISTANCE` at 10 Hz |
 | Zone orientation | 180°, matching the fitted v2 sub-boards |
 | Host UART | 921600 baud, 8N1 |
+| Raw point-cloud packets | Approximately 10 Hz; 9.98 Hz measured |
+
+### UART output update
+
+The previous 2026-09-10 image sent a raw-cloud packet after every acquisition
+poll, so the dashboard read about 20 Hz even though the sensors were configured
+for 10 Hz. This update batches the latest newly received channel readings into
+10 Hz UART packets. Acquisition continues polling at 20 Hz to collect staggered
+sensor arrivals. Sensor integration and MAVLink collision-prevention timing
+are unchanged.
+
+Empty polls do not overwrite unsent channel readings. New invalid readings
+replace old returns, already consumed readings are not repeated as fresh,
+and delayed samples expire. Missed output deadlines do not cause catch-up
+bursts. The existing binary protocol and browser connection remain compatible.
+The batch timestamp and attitude come from its latest acquisition poll;
+the eight sensors do not expose simultaneously.
+
+The installer also fixes a pre-flash compatibility issue: it now explicitly
+prints OpenOCD's flash-bank result before checking the memory layout. Device
+checks, backups, saved masks, option bytes, and programming addresses retain
+their existing behavior.
 
 ### Measurement handling
 
@@ -36,8 +58,8 @@ The avoidance path keeps each sensor's latest frame between polls and expires
 it **200 ms after its successful polling pass**, including when acquisition
 stalls. New invalid readings replace old valid readings immediately. These
 host timestamps do not compensate for exposure time, transport delay, or
-vehicle motion. The raw browser protocol retains its original per-poll fresh
-sensor bitmap.
+vehicle motion. The raw UART protocol identifies channels with newly collected readings
+in each output batch using its existing fresh-sensor bitmap.
 
 !!! warning "Unknown directions can restrict movement"
     PX4 Collision Prevention may restrict movement into open sky or poorly
@@ -47,14 +69,14 @@ sensor bitmap.
 
 ### Power and timing
 
-Each complete 8×8 frame uses four sub-integrations. The candidate has a 100 ms
+Each complete 8×8 frame uses four sub-integrations. The release has a 100 ms
 frame interval and 40 ms of exposure per frame: **40% calculated exposure duty**.
 This is not total board power.
 
 | Profile | Frame interval | Exposure per frame | Exposure duty |
 |---------|---------------:|-------------------:|--------------:|
 | Earlier 15 Hz / 5 ms experiment | 67 ms | 20 ms | 30% |
-| **This candidate: 10 Hz / 10 ms** | **100 ms** | **40 ms** | **40%** |
+| **This release: 10 Hz / 10 ms** | **100 ms** | **40 ms** | **40%** |
 | Earlier 15 Hz / 10 ms profile | 67 ms | 40 ms | 60% |
 
 Longer exposure can improve weak-target detection, with less frequent updates
@@ -75,15 +97,27 @@ layout and orientation, and the installer checks their bytes before/after.
 freshness/expiry, and timer-wrap regressions; existing protocol and orientation
 tests; 15 installer tests; package-integrity checks.
 
-**Pending:** an end-to-end hardware installation and all-eight-sensor readback
-of this exact release. The installation attempt stopped during identification,
-before backup or flash, because the ST-Link was absent from USB. Earlier 5 ms
-flashes do not validate this candidate. Windows/Linux hardware installation,
-power, range, optical calibration, and recovery fault injection remain
-unverified.
+**Hardware passed on two boards:** complete 1 MiB backups, programming and
+firmware readback checksums, all eight sensors started in autonomous 8×8 mode
+at 10 Hz / 10 ms, and saved-mask bytes preserved. Both installations used
+macOS with ST OpenOCD `0.12.0+dev-00635-g0a084c293`.
+
+**UART measured on one board:** 19.30 packets/s before the update in a 12-second
+capture; **9.98 packets/s after the update** in a 30-second capture, receiving
+299 CRC-valid cloud packets with no sequence gaps and all eight channels online.
+Individual arrival intervals varied from 31 to 167 ms. The 10 Hz rate is an
+average cadence, not a guarantee of perfectly spaced packet arrivals.
+Fresh-channel delivery measured 8.91–9.95 updates/s across the channels; not
+every packet necessarily contains a new reading from every channel.
+
+Stream regressions also cover staggered channels, invalid replacement,
+individual expiry, service-task jitter, skipped deadlines and timer wrap.
+
+**Still unverified:** Windows/Linux hardware installation, input power, range,
+optical calibration, sensor recovery fault injection, and flight performance.
 
 The ZIP includes `VALIDATION.md`, offline installation instructions, the release
-manifest, checksums, and third-party notices. It is a bench candidate, not a
+manifest, checksums, and third-party notices. It is a bench release, not a
 flight-validation result.
 
 References: [ST integration timing and target-status interpretation](https://www.st.com/content/st_com/en/technical-documents/UM3109.html),

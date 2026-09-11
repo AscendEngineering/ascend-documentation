@@ -16,7 +16,7 @@ single UART.
 
 ## Downloads
 
-- [Firmware and installer](08-install-firmware.md) — 10 Hz / 10 ms bench candidate;
+- [Firmware and installer](08-install-firmware.md) — 10 Hz / 10 ms bench release;
   read the [validation status](09-firmware-release-notes.md#validation-status).
 - [Case and assembly STEP files](10-case-files.md).
 
@@ -32,7 +32,7 @@ single UART.
 | 06 | [Bring-up & Setup](06-bringup-setup.md) | Assemble → power → verify → integrate → troubleshoot |
 | 07 | [Experimental Obstacle Avoidance (onboard VFH)](07-obstacle-avoidance.md) | The `AVOID=vfh` development path; not currently offered on the 8TOF board |
 | 08 | [Install Firmware](08-install-firmware.md) | Prebuilt download, ST-Link setup, installer, and rollback |
-| 09 | [Firmware Release Notes](09-firmware-release-notes.md) | 10 Hz / 10 ms candidate, measurement behavior, validation status |
+| 09 | [Firmware Release Notes](09-firmware-release-notes.md) | 10 Hz / 10 ms release, measurement behavior, validation status |
 | 10 | [Case & Assembly Downloads](10-case-files.md) | Complete assembly and electronics STEP exports |
 
 ## Key facts at a glance

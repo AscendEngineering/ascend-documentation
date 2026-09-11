@@ -160,7 +160,7 @@ def install(args, root):
     output = Path(tempfile.mkdtemp(prefix=dt.datetime.now().strftime('%Y%m%d-%H%M%S-'), dir=parent))
     print('Backup and logs: ' + str(output))
     tool = Installer(root, exe, scripts, args.serial, output)
-    probe = tool.run('identify', target_guard() + 'flash probe 0\nflash banks\nresume\nshutdown\n')
+    probe = tool.run('identify', target_guard() + 'flash probe 0\necho "FLASH_BANKS=[flash banks]"\nresume\nshutdown\n')
     uid = read_values(probe, 'UID')
     # Reject non-1-MiB layouts before reading or modifying flash. TrustZone or
     # protected devices must be configured separately; never unlock or regress.

@@ -152,7 +152,7 @@ The bridge uses the on-board algorithm to tune and regression-check avoidance.
 Simulation results apply to the code and scenarios tested; they do not establish
 physical sensor range or validate a different firmware revision. See the
 [release validation status](09-firmware-release-notes.md#validation-status) for
-the downloadable 10 Hz / 10 ms candidate.
+the downloadable 10 Hz / 10 ms release.
 
 ---
 
@@ -162,6 +162,6 @@ the downloadable 10 Hz / 10 ms candidate.
     Setpoint-streaming avoidance and the PX4 fork are **in active development**.
     Reactive/horizontal only; earlier versions were exercised in simulation and
     early flight. Start with the default **`AVOID=cp` integration** and read the
-    [candidate validation status](09-firmware-release-notes.md#validation-status)
+    [release validation status](09-firmware-release-notes.md#validation-status)
     before choosing a firmware version. Validate setpoint fusion separately on
     the intended vehicle.
